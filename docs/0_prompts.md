@@ -1,6 +1,7 @@
 - [Research process](#research-process)
 - [Plan and design process](#plan-and-design-process)
   - [Plan](#plan)
+  - [UI design](#ui-design)
 
 # Research process
 
@@ -128,4 +129,18 @@ no 2 factor authentication yet. too complicated for now.
 "Webhook support for real-time notification on completed runs" - no, the user just check the status themselves for now.
 ```
 
+## UI design
+```
+for this task, help me write all the code for the frontend in the /frontend directory. write frontend only for these 2 screens. we will add more screens and backend integration later.
 
+@photo_2025-04-25_11-01-29.jpg is the website, design a website that is eye-catchy in the first sight that way.
+
+@photo_2025-04-25_11-01-32.jpg is the screen after they have logged in. i don't know what to call it, manage board? make it looks that way, and, make the screen clickable on sidebar immediately. it doesn't have to link to the website, yet.
+
+remember, this is just a broad design. feel absolutely free to imagine more components on your 2 screens when you write. refer to current good practices in UI design.
+
+please refer to @1_research.md and @2_plan_design.md  to understand what am i building
+```
+```
+run the commands to help me install npm on windows.
+```
