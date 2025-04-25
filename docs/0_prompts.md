@@ -1,5 +1,6 @@
 - [Research process](#research-process)
 - [Plan and design process](#plan-and-design-process)
+  - [Plan](#plan)
 
 # Research process
 
@@ -74,6 +75,7 @@ then, make sure that it sounds natural.
 
 
 # Plan and design process
+## Plan
 
 ```
 let's do another exercise. the exercise instruction is:
@@ -125,4 +127,5 @@ an mcp server also serves those apis.
 no 2 factor authentication yet. too complicated for now.
 "Webhook support for real-time notification on completed runs" - no, the user just check the status themselves for now.
 ```
+
 
