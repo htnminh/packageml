@@ -1,0 +1,35 @@
+# PackageML
+
+## Information
+[NTI X Hub AI] Hub GenAI for Future Founders: Final project
+
+Name: **Hoang Tran Nhat Minh**
+
+GitHub repository: https://github.com/htnminh/packageml
+
+
+## Preview
+Captured with [GoFullPage - Full Page Screen Capture]().
+
+> TODO
+
+## Prompts and results
+
+> [!INFO]
+> 
+> See the prompts here: [Prompts](docs/0_prompts.md)
+> 
+> See the results here: [docs](docs)
+
+All the prompts are feed into OpenAI o3 and Claude 3.7 Sonnet, using ChatGPT (with some advanced functionalities like search and deep research), Cursor, and Claude desktop.
+
+The replies of LLMs will be omitted, they would be unnecessarily long and hard to get. Only the final results (after my modifications) are shown. 
+
+
+
+## Tools
+
+- https://euangoddard.github.io/clipboard2markdown/
+- https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one#table-of-contents
+
+- https://chromewebstore.google.com/detail/gofullpage-full-page-scre/fdpohaocaechififmbbbbbknoalclacl
