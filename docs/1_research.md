@@ -1,6 +1,3 @@
-
-
-
 - [Problem statement](#problem-statement)
 - [Similar applications](#similar-applications)
 - [Features that help solve the problem](#features-that-help-solve-the-problem)

@@ -1,12 +1,5 @@
-- [Results](#results)
-  - [Research](#research)
-  - [Plan and design](#plan-and-design)
 - [Research process](#research-process)
 - [Plan and design process](#plan-and-design-process)
-
-# Results
-## [Research](1_research.md)
-## [Plan and design](2_plan_design.md)
 
 # Research process
 

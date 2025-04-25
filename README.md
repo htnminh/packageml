@@ -9,17 +9,11 @@ GitHub repository: https://github.com/htnminh/packageml
 
 
 ## Preview
-Captured with [GoFullPage - Full Page Screen Capture]().
-
 > TODO
 
 ## Prompts and results
-
-> [!INFO]
-> 
-> See the prompts here: [Prompts](docs/0_prompts.md)
-> 
-> See the results here: [docs](docs)
+- See the prompts here: [Prompts](docs/0_prompts.md)
+- See the results here: [docs](docs)
 
 All the prompts are feed into OpenAI o3 and Claude 3.7 Sonnet, using ChatGPT (with some advanced functionalities like search and deep research), Cursor, and Claude desktop.
 
