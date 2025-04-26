@@ -196,3 +196,19 @@ looking good. refer to this @user_flow_designs , we will now have a review: look
 ```
 when i `npm install`, this vulnerabilities warning shows up.
 ```
+> Below is the terminal context of the above prompt, not a prompt:
+```
+npm warn deprecated @mui/base@5.0.0-dev.20240529-082515-213b5e33ab: This package has been replaced by @base-ui-components/react
+
+added 8 packages, changed 2 packages, and audited 1402 packages in 28s
+
+280 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (2 moderate, 6 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+```
