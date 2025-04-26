@@ -361,7 +361,7 @@ const LandingPage = () => {
             <Step active>
               <StepLabel StepIconComponent={() => <Avatar sx={{ bgcolor: 'primary.main' }}><CloudUploadIcon /></Avatar>}>
                 <Typography variant="h6" sx={{ mt: 1 }}>Upload Data</Typography>
-                <Typography variant="body2" color="text.secondary">Import CSV/Excel files via web UI or API</Typography>
+                <Typography variant="body2" color="text.secondary">Import CSV/Excel/JSON files via web or API</Typography>
               </StepLabel>
             </Step>
             <Step active>
@@ -483,49 +483,6 @@ const LandingPage = () => {
         </Container>
       </Box>
 
-      {/* Testimonials Section */}
-      <Box sx={{ py: 8 }}>
-        <Container>
-          <Typography variant="h3" fontWeight="bold" textAlign="center" gutterBottom>
-            User Success Stories
-          </Typography>
-          <Typography variant="h6" textAlign="center" color="text.secondary" sx={{ mb: 6, maxWidth: 800, mx: 'auto' }}>
-            See how others have succeeded with PackageML
-          </Typography>
-
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <TestimonialCard elevation={2}>
-                <Typography variant="body1" paragraph sx={{ pl: 4 }}>
-                  "PackageML transformed our classroom experience. Students who struggled with Python syntax are now building and understanding complex models. The visual explanations help them grasp concepts that were previously abstract."
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 3 }}>
-                  <Avatar sx={{ bgcolor: 'primary.light', mr: 2 }}>JD</Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">Dr. John Doe</Typography>
-                    <Typography variant="body2" color="text.secondary">Data Science Professor, University of Technology</Typography>
-                  </Box>
-                </Box>
-              </TestimonialCard>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TestimonialCard elevation={2}>
-                <Typography variant="body1" paragraph sx={{ pl: 4 }}>
-                  "As a small NGO, we couldn't afford a data science team. With PackageML, we're now predicting program outcomes with 87% accuracy and integrating these insights into our decision-making process. The entire setup runs on our existing server."
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 3 }}>
-                  <Avatar sx={{ bgcolor: 'secondary.light', mr: 2 }}>JS</Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">Jane Smith</Typography>
-                    <Typography variant="body2" color="text.secondary">Program Director, Global Education Initiative</Typography>
-                  </Box>
-                </Box>
-              </TestimonialCard>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-
       {/* Technical Highlights */}
       <Box sx={{ py: 8, bgcolor: 'grey.50' }}>
         <Container>
@@ -565,46 +522,18 @@ const LandingPage = () => {
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={12} md={7}>
-              <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 2 }}>
-                <Typography variant="subtitle2" fontWeight="bold" gutterBottom color="primary">docker-compose.yml</Typography>
-                <Box sx={{ 
-                  p: 2, 
-                  bgcolor: 'grey.900', 
-                  color: 'grey.100', 
-                  borderRadius: 1, 
-                  fontFamily: 'monospace',
-                  fontSize: 14,
-                  overflow: 'auto'
-                }}>
-                  <pre style={{ margin: 0 }}>
-{`version: '3'
-services:
-  frontend:
-    image: packageml/frontend:latest
-    ports:
-      - "3000:3000"
-  
-  api:
-    image: packageml/api:latest
-    ports:
-      - "5000:5000"
-    depends_on:
-      - mysql
-  
-  mysql:
-    image: mysql:8
-    environment:
-      - MYSQL_ROOT_PASSWORD=secure_password
-      - MYSQL_DATABASE=packageml
-  
-  mcp_server:
-    image: packageml/mcp_server:latest
-    ports:
-      - "8000:8000"`}
-                  </pre>
-                </Box>
-              </Box>
+            <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box 
+                component="img"
+                src={dashboardPreviewImage}
+                alt="PackageML Interface"
+                sx={{
+                  width: '100%',
+                  maxWidth: 500,
+                  borderRadius: 4,
+                  boxShadow: '0 16px 32px rgba(0, 0, 0, 0.15)',
+                }}
+              />
             </Grid>
           </Grid>
         </Container>
@@ -619,7 +548,7 @@ services:
                 Ready to Start Your ML Journey?
               </Typography>
               <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-                Deploy PackageML today and transform your data into actionable insights
+                Use PackageML today and transform your data into actionable insights
               </Typography>
               <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
                 <Button 
@@ -638,7 +567,7 @@ services:
                   sx={{ color: 'white', borderColor: 'white' }}
                   startIcon={<LoginIcon />}
                 >
-                  Try Demo
+                  Sign Up
                 </Button>
               </Box>
             </Grid>

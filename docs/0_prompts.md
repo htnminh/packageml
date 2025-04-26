@@ -149,3 +149,11 @@ the main page in @frontend  looks a bit lacking. can you expand with more showin
 
 do just that, we will do more later.
 ```
+```
+a few problems, fix it by:
+- "Import CSV/Excel files via web UI or API" - yes, and we also support upload of json files too. api works with it all the time. include it. "web" only, not "web UI". sounds a bit too technical.
+- completely omit the "User Success Stories" section.
+- remove that docker compose file on the main website.
+- the second button should be "Sign Up" instead of "try demo"
+- "Deploy PackageML today and transform your data into actionable insights" - change "deploy" to "Use"
+```
