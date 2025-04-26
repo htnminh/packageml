@@ -2,6 +2,7 @@
 - [Plan and design process](#plan-and-design-process)
   - [Plan](#plan)
   - [UI design](#ui-design)
+  - [User flow design](#user-flow-design)
 
 # Research process
 
@@ -157,3 +158,5 @@ a few problems, fix it by:
 - the second button should be "Sign Up" instead of "try demo"
 - "Deploy PackageML today and transform your data into actionable insights" - change "deploy" to "Use"
 ```
+
+## User flow design
