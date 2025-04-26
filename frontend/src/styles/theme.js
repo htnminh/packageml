@@ -4,21 +4,20 @@ const theme = createTheme({
   palette: {
     primary: {
       main: '#3f51b5',
-      light: '#6573c3',
-      dark: '#2c387e',
+      light: '#757de8',
+      dark: '#002984',
     },
     secondary: {
-      main: '#f50057',
-      light: '#f73378',
-      dark: '#ab003c',
+      main: '#ff4081',
+      light: '#ff79b0',
+      dark: '#c60055',
     },
     background: {
-      default: '#f5f7fa',
-      paper: '#ffffff',
+      default: '#f5f5f5',
     },
   },
   typography: {
-    fontFamily: "'Poppins', 'Roboto', 'Helvetica', 'Arial', sans-serif",
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontWeight: 700,
     },
@@ -32,7 +31,7 @@ const theme = createTheme({
       fontWeight: 600,
     },
     h5: {
-      fontWeight: 600,
+      fontWeight: 500,
     },
     h6: {
       fontWeight: 500,
@@ -50,17 +49,27 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          padding: '10px 24px',
+          padding: '8px 16px',
         },
-        contained: {
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        containedPrimary: {
+          boxShadow: '0 4px 10px rgba(63, 81, 181, 0.25)',
+        },
+        containedSecondary: {
+          boxShadow: '0 4px 10px rgba(255, 64, 129, 0.25)',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+          borderRadius: 12,
+          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.05)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        rounded: {
           borderRadius: 12,
         },
       },

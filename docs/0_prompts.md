@@ -144,3 +144,8 @@ please refer to @1_research.md and @2_plan_design.md  to understand what am i bu
 ```
 run the commands to help me install npm on windows.
 ```
+```
+the main page in @frontend  looks a bit lacking. can you expand with more showing functionalities, utilities, and/or something that makes the main page website fulfilling? refer to @1_research.md @2_plan_design.md to see what we are building.
+
+do just that, we will do more later.
+```
