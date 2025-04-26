@@ -164,3 +164,6 @@ a few problems, fix it by:
 can you generate images for the designs of main user flows in this project? read carefully through the whole repository to understand it.
 put all the images in /docs/user_flow_designs
 ```
+```
+change the file names at @README.md and in @user_flow_designs to start with 1, and in this format: "1_onboarding-flow.md"
+```
