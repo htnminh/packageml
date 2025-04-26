@@ -4,12 +4,12 @@ This directory contains user flow design diagrams for the main workflows in Pack
 
 ## Diagrams
 
-1. [**Complete User Journey**](0-complete-user-journey.md) - Overview of how all workflows connect
-2. [**Onboarding Flow**](1-onboarding-flow.md) - User signup, login, and initial dashboard access
-3. [**Dataset Management Flow**](2-dataset-management-flow.md) - Uploading, viewing, and managing datasets
-4. [**Model Training Flow**](3-model-training-flow.md) - Creating and running machine learning jobs
-5. [**API Integration Flow**](4-api-integration-flow.md) - Deploying models and managing API access
-6. [**Results Visualization Flow**](5-results-visualization-flow.md) - Exploring model performance and explanations
+1. [**Complete User Journey**](1_complete-user-journey.md) - Overview of how all workflows connect
+2. [**Onboarding Flow**](2_onboarding-flow.md) - User signup, login, and initial dashboard access
+3. [**Dataset Management Flow**](3_dataset-management-flow.md) - Uploading, viewing, and managing datasets
+4. [**Model Training Flow**](4_model-training-flow.md) - Creating and running machine learning jobs
+5. [**API Integration Flow**](5_api-integration-flow.md) - Deploying models and managing API access
+6. [**Results Visualization Flow**](6_results-visualization-flow.md) - Exploring model performance and explanations
 
 ## How to View
 
