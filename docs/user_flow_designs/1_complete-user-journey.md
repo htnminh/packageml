@@ -5,9 +5,8 @@ graph TD
     B --> C[Dashboard Home]
     
     C --> D[Dataset Management]
-    C --> E[Model Training]
-    C --> F[API Integration]
-    C --> G[Results Visualization]
+    C --> E[Model Training & Results]
+    C --> F[API & MCP Integration]
     
     %% Dataset flow connections
     D --> D1[Upload Dataset]
@@ -19,20 +18,25 @@ graph TD
     E --> E1[Create Job]
     E1 --> E2[Configure Model]
     E2 --> E3[Run Training]
-    E3 --> G
+    E3 --> E4[View Results]
     
-    %% Results visualization connections
-    G --> G1[View Performance]
-    G --> G2[View Explanations]
-    G --> G3[Export Results]
-    G1 --> F
-    G2 --> F
+    %% Results connections
+    E4 --> E5[Performance Metrics]
+    E4 --> E6[Feature Importance]
+    E4 --> E7[Model Explanations]
     
     %% API integration connections
-    F --> F1[Deploy Model]
-    F --> F2[Create API Key]
-    F1 --> F3[Integration]
-    F2 --> F3
+    F --> F1[Generate API Keys]
+    F --> F2[Access API Documentation]
+    F --> F3[Deploy Model Endpoints]
+    
+    %% API Usage paths
+    F1 --> F4[Programmatic Access]
+    F2 --> F4
+    F4 --> D
+    F4 --> E
+    F4 --> E4
+    F3 --> F5[External Applications]
     
     %% Styling
     classDef primary fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
@@ -44,8 +48,8 @@ graph TD
     class A,B,C primary
     class D,D1,D2 dataset
     class E,E1,E2,E3 training
-    class F,F1,F2,F3 api
-    class G,G1,G2,G3 results
+    class E4,E5,E6,E7 results
+    class F,F1,F2,F3,F4,F5 api
 ```
 
 # Complete PackageML User Journey
@@ -57,36 +61,37 @@ This diagram presents the comprehensive user journey through PackageML, connecti
 - After authentication, all users land on the central dashboard
 
 ## 2. Core User Flows
-From the dashboard, users can access four primary flows:
+From the dashboard, users can access three primary flows:
 
 ### Dataset Management
 - Upload and configure new datasets
 - View and manage existing datasets
 - Datasets feed into the model training process
 
-### Model Training
+### Model Training & Results
 - Create new machine learning jobs
 - Configure models (auto or manual)
 - Run training processes
-- Results feed into visualization and API deployment
+- Analyze results:
+  - Performance metrics and visualizations
+  - Feature importance and impact analysis
+  - Natural language explanations
+  - Create and test predictions
 
-### Results Visualization
-- Analyze model performance
-- Explore feature importance
-- View natural language explanations
-- Test with predictions
-- Compare models
-
-### API Integration
-- Deploy models as endpoints
-- Generate and manage API keys
-- Access integration documentation
-- Monitor API usage
+### API & MCP Integration
+- Generate and manage API keys with specific permissions
+- Access comprehensive API documentation
+- Deploy models as REST endpoints with MCP support
+- Programmatically access all platform functionality:
+  - Dataset management via API
+  - Job creation and monitoring via API
+  - Results retrieval via API
+  - Predictions with context via MCP
 
 ## 3. Integration Points
 - Dataset Management → Model Training (use datasets)
-- Model Training → Results Visualization (view results)
-- Results Visualization → API Integration (deploy successful models)
-- API Integration → External Applications (consume predictions)
+- Model Training → Results (immediate visualization)
+- API & MCP → All Functionality (full programmatic access)
+- Deployed Models → External Applications (consume predictions with context)
 
-The PackageML user journey emphasizes accessibility for non-experts while providing depth for advanced users, with a focus on making ML actionable through clear visualizations and seamless API integration. 
+The PackageML user journey emphasizes accessibility for non-experts while providing depth for advanced users. The platform can be used entirely through the UI or programmatically via the comprehensive API, with the MCP ensuring context-rich integration for all predictions. 

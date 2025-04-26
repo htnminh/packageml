@@ -167,3 +167,12 @@ put all the images in /docs/user_flow_designs
 ```
 change the file names at @README.md and in @user_flow_designs to start with 1, and in this format: "1_onboarding-flow.md"
 ```
+```
+@README.md @user_flow_designs 
+
+fix the following things:
+- the results visualization flow is long and unncessary. we put all the results on the screen, or return it via the api. remove that flow and put it somewhere near the end of the model training flow.
+- rename api integration flow to something like api mcp integration flow. fix the whole thing to remember that: we can control everything via api as the graphical interface, including but not limited to datasets management, jobs managements, get results, etc.
+
+for the second point, since you might make made the same mistake, also check the @2_plan_design.md if the misconception is there. if not, do not edit it.
+```
