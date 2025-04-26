@@ -160,3 +160,7 @@ a few problems, fix it by:
 ```
 
 ## User flow design
+```
+can you generate images for the designs of main user flows in this project? read carefully through the whole repository to understand it.
+put all the images in /docs/user_flow_designs
+```
