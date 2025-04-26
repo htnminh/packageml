@@ -3,6 +3,7 @@
   - [Plan](#plan)
   - [UI design](#ui-design)
   - [User flow design](#user-flow-design)
+- [Frontend development and build process](#frontend-development-and-build-process)
 
 # Research process
 
@@ -184,6 +185,8 @@ for the second point, since you might make made the same mistake, also check the
 in @5_api-mcp-integration-flow.md 
 - we won't have "Set Permissions/Scope" yet. change it to set expiry date.
 ```
+
+# Frontend development and build process
 ```
 looking good. refer to this @user_flow_designs , we will now have a review: look at the following files or directories to see if anything is deviated from the designs (including violations, misconceptions, mentioned but not supporting the flows, etc.) in other words, clean up or make modifications to make sure that we are on the right track.
 - @1_research.md 
