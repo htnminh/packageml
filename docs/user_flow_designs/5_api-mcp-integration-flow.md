@@ -8,7 +8,7 @@ graph TD
     D -->|Revoke| G[Confirm Revoke Dialog]
     
     E --> H[Set Key Name/Description]
-    H --> I[Set Permissions/Scope]
+    H --> I[Set Expiry Date]
     I --> J[Generate Key]
     J --> K[Display New Key]
     K --> L[Copy to Clipboard]
@@ -55,7 +55,8 @@ graph TD
 This diagram illustrates the comprehensive API and Model-Context-Protocol (MCP) integration workflow in PackageML:
 
 1. **API Key Management**:
-   - Generate new API keys with specific permissions and scopes
+   - Generate new API keys with key name and description
+   - Set expiry date for security
    - View existing keys and track usage statistics
    - Revoke keys when needed for security
    

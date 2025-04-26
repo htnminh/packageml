@@ -176,3 +176,11 @@ fix the following things:
 
 for the second point, since you might make made the same mistake, also check the @2_plan_design.md if the misconception is there. if not, do not edit it.
 ```
+```
+@README.md @user_flow_designs 
+
+- if sub-flows like api mcp and datasets management is already detailed in separate flows, don't include their specific actions in the complete journey. delete things like generate api keys and view datasets in the complete journey flow.
+
+in @5_api-mcp-integration-flow.md 
+- we won't have "Set Permissions/Scope" yet. change it to set expiry date.
+```
