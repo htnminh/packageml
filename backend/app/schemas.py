@@ -125,7 +125,7 @@ class ModelBase(BaseModel):
     description: Optional[str] = None
     model_type: ModelType
     task_type: ModelTaskType
-    dataset_id: int
+    dataset_id: Optional[int] = None
     target_column: Optional[str] = None
     feature_columns: Optional[List[str]] = None
     hyperparameters: ModelHyperparameters
@@ -153,7 +153,7 @@ class Model(ModelBase):
         orm_mode = True
 
 class ModelWithDataset(Model):
-    dataset_name: str
+    dataset_name: Optional[str] = None
     
     class Config:
         orm_mode = True

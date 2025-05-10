@@ -12,6 +12,9 @@ RUN adduser --disabled-password --gecos "" appuser
 
 COPY . .
 
+# Make scripts executable
+RUN chmod +x run_migrations.py init_db.py
+
 # Change ownership to the non-root user
 RUN chown -R appuser:appuser /app
 

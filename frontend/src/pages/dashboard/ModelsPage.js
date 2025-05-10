@@ -109,8 +109,6 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
     description: '',
     model_type: 'logistic_regression',
     task_type: 'classification',
-    dataset_id: '',
-    target_column: '',
     feature_columns: [],
     hyperparameters: {
       random_state: 42,
@@ -119,44 +117,8 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
     }
   });
   
-  const [availableColumns, setAvailableColumns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Fetch dataset columns when dataset_id changes
-  useEffect(() => {
-    if (newModel.dataset_id) {
-      fetchDatasetColumns(newModel.dataset_id);
-    }
-  }, [newModel.dataset_id]);
-
-  const fetchDatasetColumns = async (datasetId) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await axios.get(`${API_URL}/datasets/${datasetId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      const columns = response.data.column_schema.map(col => col.name);
-      setAvailableColumns(columns);
-      
-      // Pre-select all columns as features except the target if set
-      if (newModel.target_column && columns.includes(newModel.target_column)) {
-        const features = columns.filter(col => col !== newModel.target_column);
-        setNewModel(prev => ({ ...prev, feature_columns: features }));
-      } else {
-        setNewModel(prev => ({ ...prev, feature_columns: columns }));
-      }
-      
-    } catch (err) {
-      console.error('Error fetching dataset columns:', err);
-      setError('Failed to load dataset columns');
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -174,11 +136,6 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
         model_type: defaultModelType
       }));
     }
-  };
-
-  const handleFeatureColumnChange = (e) => {
-    const selectedFeatures = Array.from(e.target.selectedOptions, option => option.value);
-    setNewModel(prev => ({ ...prev, feature_columns: selectedFeatures }));
   };
 
   const handleHyperparameterChange = (e) => {
@@ -208,11 +165,14 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
       if (!token) return;
       
       // Validate required fields
-      if (!newModel.name || !newModel.dataset_id) {
-        setError('Name and dataset are required');
+      if (!newModel.name) {
+        setError('Model name is required');
         setLoading(false);
         return;
       }
+      
+      // Log what we're about to send
+      console.log('Creating model with data:', newModel);
       
       const response = await axios.post(
         `${API_URL}/models/`,
@@ -225,14 +185,8 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
         }
       );
       
-      // Get dataset name
-      const dataset = datasets.find(d => d.id === newModel.dataset_id);
-      const modelWithDataset = {
-        ...response.data,
-        dataset_name: dataset ? dataset.name : `Dataset ${newModel.dataset_id}`
-      };
-      
-      onModelCreated(modelWithDataset);
+      console.log('Model created successfully:', response.data);
+      onModelCreated(response.data);
     } catch (err) {
       console.error('Error creating model:', err);
       setError(err.response?.data?.detail || 'Failed to create model');
@@ -241,19 +195,18 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
     }
   };
 
-  // Get available model types based on task
+  // Get available model types based on task type
   const getAvailableModelTypes = () => {
     switch(newModel.task_type) {
       case 'classification':
         return [
           { value: 'logistic_regression', label: 'Logistic Regression' },
-          { value: 'svm', label: 'Support Vector Machine (SVM)' },
+          { value: 'svm', label: 'Support Vector Machine' },
           { value: 'neural_network', label: 'Neural Network' }
         ];
       case 'regression':
         return [
-          { value: 'logistic_regression', label: 'Linear Regression' },
-          { value: 'svr', label: 'Support Vector Regression (SVR)' },
+          { value: 'svr', label: 'Support Vector Regression' },
           { value: 'neural_network', label: 'Neural Network' }
         ];
       case 'clustering':
@@ -263,7 +216,7 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
         ];
       case 'dimensionality_reduction':
         return [
-          { value: 'pca', label: 'Principal Component Analysis (PCA)' }
+          { value: 'pca', label: 'Principal Component Analysis' }
         ];
       default:
         return [];
@@ -590,58 +543,6 @@ const CreateModelDialog = ({ datasets, onClose, onModelCreated }) => {
                 {getAvailableModelTypes().map(type => (
                   <MenuItem key={type.value} value={type.value}>{type.label}</MenuItem>
                 ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          {/* Dataset Selection */}
-          <Grid item xs={12}>
-            <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ mt: 2 }}>
-              Dataset Selection
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth required>
-              <InputLabel>Dataset</InputLabel>
-              <Select
-                name="dataset_id"
-                value={newModel.dataset_id}
-                onChange={handleInputChange}
-                label="Dataset"
-              >
-                {datasets.map(dataset => (
-                  <MenuItem key={dataset.id} value={dataset.id}>
-                    {dataset.name} ({dataset.rows} rows, {dataset.columns} columns)
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          
-          <Grid item xs={12}>
-            <FormControl fullWidth>
-              <InputLabel>Feature Columns</InputLabel>
-              <Select
-                multiple
-                name="feature_columns"
-                value={newModel.feature_columns}
-                onChange={handleFeatureColumnChange}
-                label="Feature Columns"
-                disabled={!newModel.dataset_id || availableColumns.length === 0}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value} />
-                    ))}
-                  </Box>
-                )}
-              >
-                {availableColumns
-                  .filter(col => col !== newModel.target_column)
-                  .map(column => (
-                    <MenuItem key={column} value={column}>{column}</MenuItem>
-                  ))}
               </Select>
             </FormControl>
           </Grid>

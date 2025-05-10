@@ -29,7 +29,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  FormHelperText
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -177,6 +178,8 @@ const CreateJobDialog = ({ models, onClose, onJobCreated }) => {
         ...newJob
       };
       
+      console.log('Creating job with data:', jobData);
+      
       const response = await axios.post(
         `${API_URL}/jobs/`,
         jobData,
@@ -188,17 +191,28 @@ const CreateJobDialog = ({ models, onClose, onJobCreated }) => {
         }
       );
       
+      console.log('Job created successfully:', response.data);
+      
       // If trainNow is true, start the job immediately after creation
       if (trainNow && response.data.id) {
-        await axios.put(
-          `${API_URL}/jobs/${response.data.id}/start`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
+        try {
+          console.log('Starting job:', response.data.id);
+          
+          await axios.put(
+            `${API_URL}/jobs/${response.data.id}/start`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
             }
-          }
-        );
+          );
+          
+          console.log('Job started successfully');
+        } catch (err) {
+          console.error('Error starting job:', err);
+          // Continue even if we can't start the job
+        }
       }
       
       onJobCreated(response.data);
@@ -314,6 +328,9 @@ const CreateJobDialog = ({ models, onClose, onJobCreated }) => {
                         <MenuItem key={column} value={column}>{column}</MenuItem>
                       ))}
                     </Select>
+                    <FormHelperText>
+                      Select the target column you want to predict
+                    </FormHelperText>
                   </FormControl>
                 </Grid>
               )}
@@ -471,12 +488,20 @@ const JobsPage = () => {
         }
       });
       
-      fetchJobs();
+      // Fetch jobs immediately to update UI
+      fetchJobs(false);
+      
+      // Set a success message
       setSnackbarMessage('Job started successfully');
       setOpenSnackbar(true);
+      
+      // Then fetch again after a delay to ensure we get the latest status
+      setTimeout(() => {
+        fetchJobs(false);
+      }, 2000);
     } catch (error) {
       console.error("Error starting job:", error);
-      setSnackbarMessage('Failed to start job');
+      setSnackbarMessage(error.response?.data?.detail || 'Failed to start job');
       setOpenSnackbar(true);
     }
   };

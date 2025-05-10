@@ -10,6 +10,7 @@
   - [Models](#models)
   - [API keys](#api-keys)
   - [Documentation and Dashboard](#documentation-and-dashboard)
+  - [Debugs](#debugs)
 
 # Research process
 
@@ -1024,4 +1025,37 @@ API Calls
 - remove the Recent Jobs section on the dashboard
 
 - make the documentation page more streamlined with other pages. of course, make the packageml button on this page navigate to the main page.
+```
+## Debugs
+```
+i tried docker compose down -v to remove the mysql data and see if this code is robust. now i can't create an account or login. fix that.
+```
+```
+remove the data selection when creating model, i have said this earlier.
+this warning is wrong: "Target column is required for supervised learning" in the model creating. why target column is here when user should choose it in jobs?
+```
+```
+most things work, but fix these things:
+- again, in "Model Configuration", do not let the user choose the dataset here. remember that in this screen, the most important things we save are the hyperparameters. also, see if the backend still save this dataset config, if yes, remove.
+- if anything is needed that isn't specific to dataset or model, let the user choose in the create job window, like the target column.
+- fix the bug that when create a new job, when i press start, the noti shows that can't start an in progress. when i close that window, the job is completed.
+```
+```
+@error saving models 
+fix that issue
+
+and also, completely remove mock datasets on a new account.
+```
+```
+let the "Dashboard" correctly query the correct numbers instead of:
+Jobs
+12
+Datasets
+24
+Models
+8
+API Calls
+872
+
+however to ensure performance, only load that the first time when the user log in, and add a refresh button to query again every time the user press it.
 ```

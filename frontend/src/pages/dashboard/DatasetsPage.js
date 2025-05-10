@@ -63,70 +63,6 @@ const debugLog = (message, data) => {
   }
 };
 
-// Mock data for datasets - will be replaced with real data from API
-const mockDatasets = [
-  { 
-    id: 1, 
-    name: 'Customer Data', 
-    filename: 'customer_data.csv', 
-    rows: 10250, 
-    columns: 15, 
-    size: '2.4 MB', 
-    uploaded: '2023-05-15',
-    type: 'CSV',
-    missing_values: 120,
-    used_in_jobs: 2
-  },
-  { 
-    id: 2, 
-    name: 'Sales Data', 
-    filename: 'sales_data.csv', 
-    rows: 5430, 
-    columns: 8, 
-    size: '1.1 MB', 
-    uploaded: '2023-06-01',
-    type: 'CSV',
-    missing_values: 0,
-    used_in_jobs: 1
-  },
-  { 
-    id: 3, 
-    name: 'Product Catalog', 
-    filename: 'products.json', 
-    rows: 1250, 
-    columns: 12, 
-    size: '780 KB', 
-    uploaded: '2023-06-10',
-    type: 'JSON',
-    missing_values: 45,
-    used_in_jobs: 0
-  }
-];
-
-// Mock dataset details - will be replaced with real data from API
-const mockDatasetDetails = {
-  id: 1,
-  name: 'Customer Data',
-  filename: 'customer_data.csv',
-  description: 'Customer demographic and subscription data for churn analysis',
-  created: '2023-05-15',
-  tags: ['customers', 'demographics', 'churn'],
-  columns: [
-    { name: 'customer_id', type: 'string', missing: 0, example: 'CUST001' },
-    { name: 'age', type: 'integer', missing: 12, example: '34' },
-    { name: 'gender', type: 'string', missing: 0, example: 'Female' },
-    { name: 'subscription_length', type: 'integer', missing: 0, example: '24' },
-    { name: 'monthly_charges', type: 'float', missing: 0, example: '65.75' },
-    { name: 'total_charges', type: 'float', missing: 32, example: '1578.00' },
-    { name: 'churn', type: 'boolean', missing: 0, example: 'True' }
-  ],
-  sample_data: [
-    { customer_id: 'CUST001', age: 34, gender: 'Female', subscription_length: 24, monthly_charges: 65.75, total_charges: 1578.00, churn: true },
-    { customer_id: 'CUST002', age: 46, gender: 'Male', subscription_length: 12, monthly_charges: 42.50, total_charges: 510.00, churn: false },
-    { customer_id: 'CUST003', age: 29, gender: 'Male', subscription_length: 6, monthly_charges: 70.25, total_charges: 421.50, churn: true }
-  ]
-};
-
 const DatasetsPage = () => {
   debugLog("Rendering DatasetsPage component");
   
@@ -135,7 +71,7 @@ const DatasetsPage = () => {
   const [randomizeOpen, setRandomizeOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [tabValue, setTabValue] = useState(0);
-  const [datasets, setDatasets] = useState(mockDatasets);
+  const [datasets, setDatasets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
@@ -194,12 +130,11 @@ const DatasetsPage = () => {
         used_in_jobs: dataset.used_in_jobs
       }));
       
-      setDatasets(formattedDatasets.length > 0 ? formattedDatasets : mockDatasets);
+      setDatasets(formattedDatasets);
     } catch (err) {
       console.error('Error fetching datasets:', err);
       setError('Failed to load datasets. Please try again later.');
-      // Fallback to mock data for demo purposes
-      setDatasets(mockDatasets);
+      setDatasets([]);
     } finally {
       setLoading(false);
     }
@@ -234,13 +169,11 @@ const DatasetsPage = () => {
       };
       
       setSelectedDataset(datasetDetails);
+      setDetailsOpen(true);
     } catch (err) {
       console.error('Error fetching dataset details:', err);
-      // Fallback to mock data for demo purposes
-      setSelectedDataset(mockDatasetDetails);
+      setError('Failed to load dataset details. Please try again later.');
     }
-    
-    setDetailsOpen(true);
   }, [navigate]);
 
   const handleDeleteDataset = useCallback(async (datasetId) => {

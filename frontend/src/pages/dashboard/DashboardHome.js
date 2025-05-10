@@ -1,19 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Box, 
   Typography, 
   Grid, 
   Paper, 
-  Button
+  Button,
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import StorageIcon from '@mui/icons-material/Storage';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import ApiIcon from '@mui/icons-material/Api';
+import axios from 'axios';
 
-const DashboardCard = ({ title, count, bgColor, icon, buttonText, linkTo }) => {
+// Backend API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+const DashboardCard = ({ title, count, bgColor, icon, buttonText, linkTo, isLoading }) => {
   return (
     <Paper
       sx={{
@@ -47,7 +55,7 @@ const DashboardCard = ({ title, count, bgColor, icon, buttonText, linkTo }) => {
         {title}
       </Typography>
       <Typography color="text.primary" variant="h3" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
-        {count}
+        {isLoading ? <CircularProgress size={36} /> : count}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {icon}
@@ -66,11 +74,11 @@ const DashboardCard = ({ title, count, bgColor, icon, buttonText, linkTo }) => {
 };
 
 const DashboardHome = () => {
-  // Updated stats with the correct values
-  const stats = [
+  const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState([
     { 
       title: 'Jobs', 
-      count: '12', 
+      count: '0', 
       buttonText: 'View Jobs', 
       bgColor: '#3f51b5',
       icon: <ListAltIcon color="primary" />,
@@ -78,7 +86,7 @@ const DashboardHome = () => {
     },
     { 
       title: 'Datasets', 
-      count: '24', 
+      count: '0', 
       buttonText: 'Manage Datasets', 
       bgColor: '#00a152',
       icon: <StorageIcon color="success" />,
@@ -86,7 +94,7 @@ const DashboardHome = () => {
     },
     { 
       title: 'Models', 
-      count: '8', 
+      count: '0', 
       buttonText: 'View Models', 
       bgColor: '#f50057',
       icon: <BarChartIcon color="secondary" />,
@@ -94,13 +102,64 @@ const DashboardHome = () => {
     },
     { 
       title: 'API Calls', 
-      count: '872', 
+      count: '0', 
       buttonText: 'View Stats', 
       bgColor: '#ff9800',
       icon: <ApiIcon color="warning" />,
       linkTo: '/dashboard/api'
     },
-  ];
+  ]);
+
+  // On first load, fetch the stats
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      // Fetch jobs count
+      const jobsResponse = await axios.get(`${API_URL}/jobs/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Fetch datasets count
+      const datasetsResponse = await axios.get(`${API_URL}/datasets/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Fetch models count
+      const modelsResponse = await axios.get(`${API_URL}/models/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Fetch API keys (as a proxy for API calls)
+      const apiKeysResponse = await axios.get(`${API_URL}/api-keys/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Calculate total API usage by summing usage_count
+      const totalApiCalls = apiKeysResponse.data.reduce(
+        (total, key) => total + (key.usage_count || 0), 
+        0
+      );
+      
+      // Update stats with actual counts
+      setStats(prev => [
+        { ...prev[0], count: jobsResponse.data.length.toString() },
+        { ...prev[1], count: datasetsResponse.data.length.toString() },
+        { ...prev[2], count: modelsResponse.data.length.toString() },
+        { ...prev[3], count: totalApiCalls.toString() }
+      ]);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -108,21 +167,32 @@ const DashboardHome = () => {
         <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
           Dashboard
         </Typography>
-        <Button 
-          variant="contained" 
-          color="secondary" 
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/dashboard/new"
-        >
-          Create Something New
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Tooltip title="Refresh stats">
+            <IconButton 
+              onClick={fetchStats} 
+              disabled={isLoading}
+              color="primary"
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            startIcon={<AddIcon />}
+            component={Link}
+            to="/dashboard/new"
+          >
+            Create Something New
+          </Button>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
-            <DashboardCard {...stat} />
+            <DashboardCard {...stat} isLoading={isLoading} />
           </Grid>
         ))}
       </Grid>

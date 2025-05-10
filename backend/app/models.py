@@ -75,7 +75,7 @@ class MLModel(Base):
     evaluation_metrics = Column(JSON, nullable=True)  # Store various metrics as JSON
     
     # Relationships
-    dataset_id = Column(Integer, ForeignKey("datasets.id"), nullable=False)
+    dataset_id = Column(Integer, ForeignKey("datasets.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Timestamps

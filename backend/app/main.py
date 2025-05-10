@@ -560,78 +560,83 @@ def create_model(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # Verify the dataset exists and belongs to this user
-    dataset = db.query(models.Dataset).filter(
-        models.Dataset.id == model.dataset_id,
-        models.Dataset.user_id == current_user.id
-    ).first()
-    
-    if not dataset:
-        raise HTTPException(status_code=404, detail="Dataset not found or not accessible")
-    
-    # Verify target column exists in dataset (for supervised learning)
-    if model.task_type in [schemas.ModelTaskType.CLASSIFICATION, schemas.ModelTaskType.REGRESSION]:
-        if not model.target_column:
-            raise HTTPException(status_code=400, detail="Target column is required for supervised learning")
+    try:
+        # Only verify the dataset if dataset_id is provided
+        if model.dataset_id:
+            dataset = db.query(models.Dataset).filter(
+                models.Dataset.id == model.dataset_id,
+                models.Dataset.user_id == current_user.id
+            ).first()
+            
+            if not dataset:
+                raise HTTPException(status_code=404, detail="Dataset not found or not accessible")
         
-        # Check if target column exists in dataset schema
-        column_names = [col["name"] for col in dataset.schema]
-        if model.target_column not in column_names:
-            raise HTTPException(status_code=400, detail="Target column does not exist in dataset")
-    
-    # Create new model
-    db_model = models.MLModel(
-        name=model.name,
-        description=model.description,
-        model_type=model.model_type,
-        task_type=model.task_type,
-        hyperparameters=model.hyperparameters.dict(),
-        target_column=model.target_column,
-        feature_columns=model.feature_columns,
-        dataset_id=model.dataset_id,
-        user_id=current_user.id
-    )
-    
-    db.add(db_model)
-    db.commit()
-    db.refresh(db_model)
-    return db_model
+        # Create new model
+        db_model = models.MLModel(
+            name=model.name,
+            description=model.description,
+            model_type=model.model_type,
+            task_type=model.task_type,
+            hyperparameters=model.hyperparameters.dict(),
+            target_column=model.target_column,
+            feature_columns=model.feature_columns,
+            dataset_id=model.dataset_id,
+            user_id=current_user.id
+        )
+        
+        db.add(db_model)
+        db.commit()
+        db.refresh(db_model)
+        return db_model
+    except Exception as e:
+        db.rollback()
+        print(f"Error creating model: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create model: {str(e)}")
 
 @app.get("/models/", response_model=List[schemas.ModelWithDataset])
 def get_user_models(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # Get user's models with dataset names
-    models_with_datasets = db.query(models.MLModel, models.Dataset.name.label("dataset_name")) \
-        .join(models.Dataset, models.MLModel.dataset_id == models.Dataset.id) \
-        .filter(models.MLModel.user_id == current_user.id) \
-        .all()
-    
-    # Format the response
-    result = []
-    for model, dataset_name in models_with_datasets:
-        model_dict = {
-            "id": model.id,
-            "name": model.name,
-            "description": model.description,
-            "model_type": model.model_type,
-            "task_type": model.task_type,
-            "dataset_id": model.dataset_id,
-            "dataset_name": dataset_name,
-            "target_column": model.target_column,
-            "feature_columns": model.feature_columns,
-            "hyperparameters": model.hyperparameters,
-            "is_trained": model.is_trained,
-            "training_accuracy": model.training_accuracy,
-            "evaluation_metrics": model.evaluation_metrics,
-            "user_id": model.user_id,
-            "created_at": model.created_at,
-            "updated_at": model.updated_at
-        }
-        result.append(model_dict)
-    
-    return result
+    try:
+        # Get user's models with dataset names using a left join (to include models without datasets)
+        models_with_datasets = db.query(
+            models.MLModel, 
+            models.Dataset.name.label("dataset_name")
+        ).outerjoin(
+            models.Dataset, 
+            models.MLModel.dataset_id == models.Dataset.id
+        ).filter(
+            models.MLModel.user_id == current_user.id
+        ).all()
+        
+        # Format the response
+        result = []
+        for model, dataset_name in models_with_datasets:
+            model_dict = {
+                "id": model.id,
+                "name": model.name,
+                "description": model.description,
+                "model_type": model.model_type,
+                "task_type": model.task_type,
+                "dataset_id": model.dataset_id,
+                "dataset_name": dataset_name,  # This can be None
+                "target_column": model.target_column,
+                "feature_columns": model.feature_columns,
+                "hyperparameters": model.hyperparameters,
+                "is_trained": model.is_trained,
+                "training_accuracy": model.training_accuracy,
+                "evaluation_metrics": model.evaluation_metrics,
+                "user_id": model.user_id,
+                "created_at": model.created_at,
+                "updated_at": model.updated_at
+            }
+            result.append(model_dict)
+        
+        return result
+    except Exception as e:
+        print(f"Error getting models: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get models: {str(e)}")
 
 @app.get("/models/{model_id}", response_model=schemas.Model)
 def get_model_details(
