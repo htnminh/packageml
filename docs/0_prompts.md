@@ -6,6 +6,7 @@
 - [Basic frontend development and build process](#basic-frontend-development-and-build-process)
 - [Frontend and backend development, basic packaging process](#frontend-and-backend-development-basic-packaging-process)
 - [Backend development](#backend-development)
+  - [Datasets](#datasets)
 
 # Research process
 
@@ -458,6 +459,7 @@ follow up with the 4 questions here.
 4. where are my old dashboard pages? it's currently completely new one with content at all. you might want to search for the "add" button, it is somewhere in that area. if the old dashboard are still in the codebase (or you still remember them), bring them back you can change the style to match the current style)
 ```
 # Backend development
+## Datasets
 ```
 refer to @1_research.md @2_plan_design.md  @user_flow_designs  to understand what we are building. scan the whole directory structure to understand what i have done so far.
 
@@ -798,4 +800,83 @@ again, nothing changed. can you make sure that we are on the right track by:
 ```
 the issue lies in the fact that you actually forgot to add the build flag in docker compose up -d --build. i already ran it and see the new page correctly. i didn't test the functionalities yet.
 but for now, we will do one small maintaining step. i want you to scan the whole directory, read every file. except the files for human reading like text documents and images, i want you check if there's any optimization you can do to the code. however, i want you to make sure you don't break anything. so if you are not sure if optimizing something will break something, do not do it.
+```
+```
+i have received and merged the following pull requests from dependabot. see if the current code still work, but i guess all of them will. only fix critical functional issue if there's one. don't refactor. you can search the @Web if needed.
+
+Merge pull request #1 from htnminh/dependabot/pip/backend/python-jose-3.4.0
+Merge pull request #4 from htnminh/dependabot/pip/backend/pydantic-1.10.13
+Bump python-jose from 3.3.0 to 3.4.0 in /backend
+Bump pydantic from 1.10.7 to 1.10.13 in /backend
+Merge pull request #2 from htnminh/dependabot/pip/backend/cryptography-44.0.1
+Merge pull request #3 from htnminh/dependabot/pip/backend/pymysql-1.1.1
+Merge pull request #5 from htnminh/dependabot/pip/backend/python-multipart-0.0.18
+```
+```
+i created 2 "Random customer data" and they both have the same name and same file name? why isn't there a conflict? where are they saved? and make sure to include the dataset id in the metadata.
+also, don't pop up the announce window and make the user have to click ok to turn it off after creating a random dataset. a small notification is ok.
+```
+```
+Random Customer Data	customer_data.csv	291	7	44.3 KB	
+CSV
+2025-05-10	
+Random Product Catalog	products.json	801	12	238.2 KB	
+JSON
+2025-05-10	
+Random Sales Data	sales_data.csv	1,081	8	187.0 KB	
+CSV
+2025-05-10
+
+we will use csv as our main type. do the following regarding both the backend and the frontend: 
+0. completely remove the type column.
+1. make all the random example data generate csv files.
+2. when an user upload an excel file, convert it to csv before saving it to the database. the same for json.
+3. remove the "File type" and its radio buttons. 
+4. below that, auto detect the type based on file extension
+5. immediately check the file after upload, and preview them the table. show the error for them to fix if something is wrong with their file.
+```
+```
+it shows:
+
+Data Preview
+Excel file detected. Preview not available. The file will be converted to CSV upon upload.
+Showing first 5 rows of data
+
+i want it to immediately preview it, or show some error message for user to fix the file. immediate feedback is needed. we don't want to waste user's time if they upload some heavy file for a long time just to see an error after they have waited for long.
+```
+```
+here's my excel file "test_data.xlsx" content
+a	bc	def
+1	1.2	aa
+4	12.3	ff
+5	411.2	jgi
+
+shows this error.
+Error in file:
+Error parsing Excel file: Cannot read properties of null (reading 'name')
+
+fix that issue.
+
+and also, add a tickbox after detected csv or excel for user to choose weather or not the first line is header.
+```
+```
+weird bug: when i upload the excel, the old error shows up. however when i tick or untick the First row contains column headers, it shows the preview data normally.
+ fix that.
+
+also, ticking the First row contains column headers shows the preview with Column1, Column2, Column3, and unticking it show the correct header. fix that.
+```
+```
+now the issue is somehow even worse that i have to click the checkbox twice for it to show, and yes, it is still inversed behaviour.
+
+let's do it this way:
+make a preview button below the checkbox.
+whenever the user press that button, get the config of the checkbox. if ticked, we take the row names. if not, we take those default names.
+```
+```
+Error parsing file: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+
+fix that issue. and also, when upload the file, make sure each column is of one in 3 data types string, int, or float, like what are shown in the example dataset.
+```
+```
+Error parsing file: Missing optional dependency 'openpyxl'. Use pip or conda to install openpyxl.
 ```

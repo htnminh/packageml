@@ -206,8 +206,8 @@ def create_random_dataset(
                 {"name": "last_updated", "type": "string"},
                 {"name": "weight", "type": "float"}
             ],
-            "filename": "products.json",
-            "file_type": "JSON"
+            "filename": "product_catalog.csv",
+            "file_type": "CSV"
         }
     }
     
@@ -383,32 +383,73 @@ async def upload_dataset(
     file: UploadFile = File(...),
     name: str = Form(...),
     description: str = Form(None),
-    file_type: str = Form(...),
+    first_row_is_header: str = Form("true"),  # Default to true
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
     # Read file content
     content = await file.read()
     
-    # Parse file based on type
+    # Auto-detect file type based on extension
+    file_extension = file.filename.split('.')[-1].lower()
+    
+    # Convert first_row_is_header to boolean
+    has_header = first_row_is_header.lower() == "true"
+    
+    # Parse file based on detected type and convert to dataframe
     try:
-        if file_type.upper() == "CSV":
-            import pandas as pd
-            import io
-            df = pd.read_csv(io.StringIO(content.decode('utf-8')))
-            data = df.to_dict(orient="records")
-        elif file_type.upper() == "JSON":
-            import json
-            data = json.loads(content.decode('utf-8'))
-            if not isinstance(data, list):
-                data = [data]  # Convert single object to list
-        elif file_type.upper() == "EXCEL":
-            import pandas as pd
-            import io
-            df = pd.read_excel(io.BytesIO(content))
-            data = df.to_dict(orient="records")
+        import pandas as pd
+        import numpy as np
+        import io
+        import json
+        
+        if file_extension == 'csv':
+            # Pass header=None if first row is not header
+            if has_header:
+                df = pd.read_csv(io.StringIO(content.decode('utf-8')))
+            else:
+                df = pd.read_csv(io.StringIO(content.decode('utf-8')), header=None)
+                # Generate column names (Column1, Column2, etc.)
+                df.columns = [f'Column{i+1}' for i in range(len(df.columns))]
+        elif file_extension in ['json']:
+            # Convert JSON to dataframe
+            json_data = json.loads(content.decode('utf-8'))
+            
+            # Handle both array and object formats
+            if not isinstance(json_data, list):
+                json_data = [json_data]  # Convert single object to list
+                
+            df = pd.DataFrame(json_data)
+        elif file_extension in ['xlsx', 'xls']:
+            # Convert Excel to dataframe - pass header=None if first row is not header
+            if has_header:
+                df = pd.read_excel(io.BytesIO(content))
+            else:
+                df = pd.read_excel(io.BytesIO(content), header=None)
+                # Generate column names
+                df.columns = [f'Column{i+1}' for i in range(len(df.columns))]
         else:
-            raise HTTPException(status_code=400, detail="Unsupported file type")
+            raise HTTPException(status_code=400, detail="Unsupported file type. Please upload CSV, JSON, or Excel files.")
+        
+        # Clean up and standardize data types
+        for column in df.columns:
+            # Check if column contains numeric values
+            if pd.api.types.is_numeric_dtype(df[column]):
+                # Try to convert to int if all values are whole numbers
+                if df[column].dropna().apply(lambda x: x == int(x)).all():
+                    df[column] = df[column].fillna(0).astype(int)
+                else:
+                    df[column] = df[column].fillna(0.0).astype(float)
+            else:
+                # Convert all non-numeric columns to string
+                df[column] = df[column].fillna('').astype(str)
+        
+        # Convert dataframe to records (list of dictionaries)
+        data = df.to_dict(orient="records")
+        
+        # Generate a new CSV filename
+        csv_filename = file.filename.rsplit(".", 1)[0] + ".csv"
+        
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error parsing file: {str(e)}")
     
@@ -437,17 +478,18 @@ async def upload_dataset(
         
         # Determine column type and count missing values
         for row in data:
-            if column_name not in row or row[column_name] is None:
+            if column_name not in row or row[column_name] is None or row[column_name] == '':
                 missing += 1
             else:
                 example = str(row[column_name])
                 value = row[column_name]
-                if isinstance(value, bool):
-                    column_type = "boolean"
-                elif isinstance(value, int):
+                if isinstance(value, int):
                     column_type = "integer"
                 elif isinstance(value, float):
                     column_type = "float"
+                elif isinstance(value, str):
+                    column_type = "string"
+                # We're limiting to just 3 types as requested
         
         schema.append({
             "name": column_name,
@@ -459,17 +501,17 @@ async def upload_dataset(
     # Calculate size in bytes (approximate)
     size = len(json.dumps(data))
     
-    # Create new dataset
+    # Create new dataset - always store as CSV type
     db_dataset = models.Dataset(
         name=name,
-        filename=file.filename,
+        filename=csv_filename,  # Use the CSV filename
         description=description or "",
         data=data,
         schema=schema,
         rows=len(data),
         columns=len(schema),
         size=size,
-        file_type=file_type.upper(),
+        file_type="CSV",  # Always set to CSV
         tags="",
         missing_values=sum(col["missing"] for col in schema),
         user_id=current_user.id

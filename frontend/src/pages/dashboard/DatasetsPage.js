@@ -31,7 +31,8 @@ import {
   Slider,
   Alert,
   Stack,
-  CircularProgress
+  CircularProgress,
+  Snackbar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -143,6 +144,8 @@ const DatasetsPage = () => {
   const [numRows, setNumRows] = useState(100);
   const [randomizeLoading, setRandomizeLoading] = useState(false);
   const [randomizeError, setRandomizeError] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   // Memoize formatSize function to avoid recreating it on every render
   const formatSize = useCallback((bytes) => {
@@ -318,8 +321,9 @@ const DatasetsPage = () => {
       setDatasets(prevDatasets => [...prevDatasets, newDataset]);
       setRandomizeOpen(false);
       
-      // Show success message
-      alert(`Successfully created random ${datasetType} with ${numRows} rows`);
+      // Show success message with non-intrusive notification
+      setSnackbarMessage(`Successfully created random ${datasetType} with ${numRows} rows (ID: ${response.data.id})`);
+      setOpenSnackbar(true);
     } catch (err) {
       console.error('Error creating random dataset:', err);
       setRandomizeError(err.response?.data?.detail || 'Failed to create random dataset. Please try again.');
@@ -405,7 +409,6 @@ const DatasetsPage = () => {
                   <TableCell><Typography fontWeight="bold">Rows</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Columns</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Size</Typography></TableCell>
-                  <TableCell><Typography fontWeight="bold">Type</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Uploaded</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Actions</Typography></TableCell>
                 </TableRow>
@@ -418,13 +421,6 @@ const DatasetsPage = () => {
                     <TableCell>{dataset.rows.toLocaleString()}</TableCell>
                     <TableCell>{dataset.columns}</TableCell>
                     <TableCell>{dataset.size}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={dataset.type} 
-                        size="small"
-                        color={dataset.type === 'CSV' ? 'primary' : 'secondary'}
-                      />
-                    </TableCell>
                     <TableCell>{dataset.uploaded}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex' }}>
@@ -558,6 +554,9 @@ const DatasetsPage = () => {
                         Basic Information
                       </Typography>
                       <Typography variant="body2">
+                        <strong>Dataset ID:</strong> {selectedDataset.id}
+                      </Typography>
+                      <Typography variant="body2">
                         <strong>Filename:</strong> {selectedDataset.filename}
                       </Typography>
                       <Typography variant="body2">
@@ -666,6 +665,15 @@ const DatasetsPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Add Snackbar for non-intrusive notifications */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={() => setOpenSnackbar(false)}
+        message={snackbarMessage}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
     </>
   );
 };
