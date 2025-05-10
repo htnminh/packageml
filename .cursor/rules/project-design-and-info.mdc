@@ -1,0 +1,9 @@
+---
+description: when in doubt and/or not clear about the project design and/or progress
+globs: 
+alwaysApply: false
+---
+when in doubt and/or not clear about the project design and/or progress
+- refer to @user_flow_designs @1_research.md @2_plan_design.md to understand what we are building.
+
+- scan the whole project's directory structure to know what i have done so far.

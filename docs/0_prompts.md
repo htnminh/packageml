@@ -880,3 +880,36 @@ fix that issue. and also, when upload the file, make sure each column is of one 
 ```
 Error parsing file: Missing optional dependency 'openpyxl'. Use pip or conda to install openpyxl.
 ```
+```
+everything works now. i got these 2 alerts on github. read them and fix them.
+
+SheetJS Regular Expression Denial of Service (ReDoS) #18
+Dependabot can't find a published or compatible non-vulnerable version for xlsx
+The latest published and compatible version is 0.18.5.
+Package
+Affected versions
+Patched version
+xlsx
+(npm)
+< 0.20.2
+0.20.2
+SheetJS Community Edition before 0.20.2 is vulnerable.to Regular Expression Denial of Service (ReDoS).
+
+Prototype Pollution in sheetJS #17
+Dependabot can't find a published or compatible non-vulnerable version for xlsx
+The latest published and compatible version is 0.18.5.
+Package
+Affected versions
+Patched version
+xlsx
+(npm)
+< 0.19.3
+0.19.3
+All versions of SheetJS CE through 0.19.2 are vulnerable to "Prototype Pollution" when reading specially crafted files. Workflows that do not read arbitrary files (for example, exporting data to spreadsheet files) are unaffected.
+A non-vulnerable version cannot be found via npm, as the repository hosted on GitHub and the npm package xlsx are no longer maintained.
+
+```
+```
+ @project-design-and-info.mdc understand this project.
+fix the issue in here @cmd 
+```

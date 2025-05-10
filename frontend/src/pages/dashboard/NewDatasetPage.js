@@ -25,7 +25,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import PreviewIcon from '@mui/icons-material/Preview';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 // Backend API URL
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -189,87 +189,108 @@ const NewDatasetPage = () => {
           throw new Error(`Invalid JSON format: ${err.message}`);
         }
       }
-      // Parse Excel files
+      // Parse Excel files using ExcelJS
       else if (['xlsx', 'xls'].includes(extension)) {
         try {
-          // Parse Excel data
-          const workbook = XLSX.read(content, { type: 'array' });
-          
-          if (!workbook || !workbook.SheetNames || workbook.SheetNames.length === 0) {
-            throw new Error('Invalid Excel file or no sheets found');
-          }
-          
-          // Get the first worksheet
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          
-          if (!worksheet) {
-            throw new Error('Invalid sheet data in Excel file');
-          }
-          
-          // Get all rows with header:1 option (all data as array of arrays)
-          const allRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          
-          if (!allRows || allRows.length === 0) {
-            throw new Error('Excel file appears to be empty');
-          }
-          
-          let columns = [];
-          let data = [];
-          
-          if (firstRowIsHeader) {
-            // First row contains headers
-            if (!allRows[0] || allRows[0].length === 0) {
-              throw new Error('First row is empty, cannot use as headers');
+          const processExcel = async () => {
+            // Create a new workbook
+            const workbook = new ExcelJS.Workbook();
+            
+            // Load from the array buffer
+            await workbook.xlsx.load(content);
+            
+            if (!workbook || workbook.worksheets.length === 0) {
+              throw new Error('Invalid Excel file or no sheets found');
             }
             
-            // Use first row as column headers
-            columns = allRows[0].map((col, idx) => 
-              col !== undefined && col !== null ? String(col) : `Column${idx + 1}`
-            );
+            // Get the first worksheet
+            const worksheet = workbook.worksheets[0];
             
-            // Use rows 2+ as data
-            for (let i = 1; i < Math.min(allRows.length, 6); i++) {
-              if (allRows[i]) {
-                const row = {};
-                columns.forEach((col, idx) => {
-                  row[col] = idx < allRows[i].length ? 
-                    (allRows[i][idx] !== undefined ? allRows[i][idx] : '') : '';
-                });
-                data.push(row);
+            if (!worksheet) {
+              throw new Error('Invalid sheet data in Excel file');
+            }
+            
+            // Extract data as rows
+            const allRows = [];
+            worksheet.eachRow((row, rowNumber) => {
+              const rowValues = [];
+              row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                rowValues.push(cell.value);
+              });
+              allRows.push(rowValues);
+            });
+            
+            if (!allRows || allRows.length === 0) {
+              throw new Error('Excel file appears to be empty');
+            }
+            
+            let columns = [];
+            let data = [];
+            
+            if (firstRowIsHeader && allRows.length > 0) {
+              // First row contains headers
+              const headerRow = allRows[0];
+              if (!headerRow || headerRow.length === 0) {
+                throw new Error('First row is empty, cannot use as headers');
+              }
+              
+              // Use first row as column headers
+              columns = headerRow.map((col, idx) => 
+                col !== undefined && col !== null ? String(col) : `Column${idx + 1}`
+              );
+              
+              // Use rows 2+ as data
+              for (let i = 1; i < Math.min(allRows.length, 6); i++) {
+                if (allRows[i]) {
+                  const row = {};
+                  columns.forEach((col, idx) => {
+                    row[col] = idx < allRows[i].length ? 
+                      (allRows[i][idx] !== undefined ? allRows[i][idx] : '') : '';
+                  });
+                  data.push(row);
+                }
+              }
+            } else {
+              // Generate column names
+              if (!allRows[0] || allRows[0].length === 0) {
+                throw new Error('First row is empty, cannot determine column count');
+              }
+              
+              // Create generic column names
+              columns = Array.from(
+                { length: allRows[0].length }, 
+                (_, idx) => `Column${idx + 1}`
+              );
+              
+              // Use all rows as data
+              for (let i = 0; i < Math.min(allRows.length, 6); i++) {
+                if (allRows[i]) {
+                  const row = {};
+                  columns.forEach((col, idx) => {
+                    row[col] = idx < allRows[i].length ? 
+                      (allRows[i][idx] !== undefined ? allRows[i][idx] : '') : '';
+                  });
+                  data.push(row);
+                }
               }
             }
-          } else {
-            // Generate column names
-            if (!allRows[0] || allRows[0].length === 0) {
-              throw new Error('First row is empty, cannot determine column count');
+            
+            if (columns.length > 20) {
+              throw new Error(`File exceeds maximum of 20 columns (has ${columns.length})`);
             }
             
-            // Create generic column names
-            columns = Array.from(
-              { length: allRows[0].length }, 
-              (_, idx) => `Column${idx + 1}`
-            );
-            
-            // Use all rows as data
-            for (let i = 0; i < Math.min(allRows.length, 6); i++) {
-              if (allRows[i]) {
-                const row = {};
-                columns.forEach((col, idx) => {
-                  row[col] = idx < allRows[i].length ? 
-                    (allRows[i][idx] !== undefined ? allRows[i][idx] : '') : '';
-                });
-                data.push(row);
-              }
-            }
-          }
+            debugLog("Excel Preview generated", { isHeaderRow: firstRowIsHeader, columns, rows: data });
+            setFilePreview({ columns, data });
+            setIsLoading(false);
+          };
           
-          if (columns.length > 20) {
-            throw new Error(`File exceeds maximum of 20 columns (has ${columns.length})`);
-          }
+          processExcel().catch(err => {
+            console.error('Error in Excel processing:', err);
+            setFileError(`Error parsing Excel file: ${err.message}`);
+            setIsLoading(false);
+          });
           
-          debugLog("Excel Preview generated", { isHeaderRow: firstRowIsHeader, columns, rows: data });
-          setFilePreview({ columns, data });
+          return; // Return early as the async function will handle setting loading state
         } catch (err) {
           throw new Error(`Error parsing Excel file: ${err.message}`);
         }
