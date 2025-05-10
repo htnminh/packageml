@@ -66,3 +66,6 @@ The replies of LLMs will be omitted, they would be unnecessarily long and hard t
 - https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one#table-of-contents
 - https://mermaid.live/
 - https://chromewebstore.google.com/detail/gofullpage-full-page-scre/fdpohaocaechififmbbbbbknoalclacl
+
+## License
+This project is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE) for details.
