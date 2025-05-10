@@ -124,7 +124,14 @@ const LandingPage = () => {
             </Typography>
             <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
               <Button color="inherit" startIcon={<DownloadIcon />}>Download</Button>
-              <Button color="inherit" startIcon={<MenuBookIcon />}>Documentation</Button>
+              <Button 
+                component={Link}
+                to="/api-docs"
+                color="inherit" 
+                startIcon={<MenuBookIcon />}
+              >
+                Documentation
+              </Button>
               <Button 
                 component={Link} 
                 to="/login" 

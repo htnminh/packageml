@@ -5,9 +5,7 @@ import {
   Typography, 
   Grid, 
   Paper, 
-  Button, 
-  Card,
-  CardContent
+  Button
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -68,7 +66,7 @@ const DashboardCard = ({ title, count, bgColor, icon, buttonText, linkTo }) => {
 };
 
 const DashboardHome = () => {
-  // Placeholder stats - in a real app these would come from API
+  // Updated stats with the correct values
   const stats = [
     { 
       title: 'Jobs', 
@@ -128,28 +126,6 @@ const DashboardHome = () => {
           </Grid>
         ))}
       </Grid>
-
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Recent Jobs
-        </Typography>
-        <Paper sx={{ p: 3, borderRadius: 3 }}>
-          <Typography variant="body1" color="text.secondary" textAlign="center" py={6}>
-            No recent jobs found. Start by creating a new job.
-          </Typography>
-          <Box sx={{ textAlign: 'center' }}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              startIcon={<AddIcon />}
-              component={Link}
-              to="/dashboard/new"
-            >
-              Create New Job
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
     </>
   );
 };

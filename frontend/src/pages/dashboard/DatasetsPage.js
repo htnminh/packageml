@@ -404,6 +404,7 @@ const DatasetsPage = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell><Typography fontWeight="bold">ID</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Name</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">File</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Rows</Typography></TableCell>
@@ -416,6 +417,7 @@ const DatasetsPage = () => {
               <TableBody>
                 {datasets.map((dataset) => (
                   <TableRow key={dataset.id}>
+                    <TableCell>{dataset.id}</TableCell>
                     <TableCell>{dataset.name}</TableCell>
                     <TableCell>{dataset.filename}</TableCell>
                     <TableCell>{dataset.rows.toLocaleString()}</TableCell>

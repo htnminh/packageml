@@ -7,6 +7,9 @@
 - [Frontend and backend development, basic packaging process](#frontend-and-backend-development-basic-packaging-process)
 - [Backend development](#backend-development)
   - [Datasets](#datasets)
+  - [Models](#models)
+  - [API keys](#api-keys)
+  - [Documentation and Dashboard](#documentation-and-dashboard)
 
 # Research process
 
@@ -912,4 +915,113 @@ A non-vulnerable version cannot be found via npm, as the repository hosted on Gi
 ```
  @project-design-and-info.mdc understand this project.
 fix the issue in here @cmd 
+```
+## Models
+```
+@project-design-and-info.mdc 
+ 
+we will now develop the /dashboard/models page and it's functionality. as you might read, we will allow the user to set up hyperparameters here.
+these are the models we will use for now, all are in sklearn
+- supervised learning:
++ classification and regression: logistic regression, svm, nn
++ regression: logistic regression, svr, nn
+- clustering: k-means, dbscan 
+- dimensionality reduction: pca
+- preprocessing: while we don't expose this, we will automatically preprocess the data for user. do it simple like this
++ all the above algos don't accept string as input. do the binary encoding for all of them. one-hot is too sparse.
++ do regular preprocessing of data normalization. 
++ evaluate (you may use scoring) in sklearn with accuracy, precision, f1 for classification; mae, mse, r2 for regression.
+
+develop both the front and backend to make sure that it works immediately. we will change the frontend and functionalities if needed in the future. you may want to see the @DatasetsPage.js to align the frontend with that.
+```
+```
+@logs check and fix this error.
+```
+```
+that's surprisingly good, keep it up. however, you need fix a few issues, and change some things:
+first, the hyperparameters is showing this. only show of that model:
+Model Hyperparameters
+Parameter	Value	Description
+random_state	42	Random number seed for reproducibility.
+C	1	Regularization parameter. Lower values mean stronger regularization.
+penalty	l2	Type of regularization penalty to use.
+solver	lbfgs	Algorithm for optimization problem.
+max_iter	100	Maximum number of iterations to converge.
+kernel	rbf	Kernel type to be used in the algorithm.
+gamma	scale	Kernel coefficient for RBF, poly and sigmoid kernels.
+hidden_layer_sizes	[100]	Number of neurons in each hidden layer.
+activation	relu	Activation function for hidden layer.
+learning_rate	constant	Learning rate schedule for weight updates.
+learning_rate_init	0.001	Initial learning rate.
+n_clusters	8	Number of clusters to form.
+init	k-means++	Method for initialization of centroids.
+eps	0.5	Maximum distance between two samples to be considered as in the same neighborhood.
+min_samples	5	Minimum number of samples in a neighborhood to be considered a core point.
+n_components	2	Number of components to keep after dimensionality reduction.
+
+second, i want you to move the whole training process to jobs page. which means: the models page is only used for setting up and saving the model parameters. the jobs page is used to train a model with the saved parameters on a dataset.
+```
+```
+49.96 Syntax error: Unexpected token, expected "," (125:0) (125:undefined)
+in the JobsPage.js file when running docker compose up -d --build
+```
+```
+fix the following issues / make the following changes:
+1. click the "Train" button next to model navigate to this page "http://localhost:3000/dashboard/jobs/new?modelId=1" but this page is empty. simply remove this button.
+2. remove the "Training Results Summary" section in model overview.
+3. remove the "Performance" tab in model details, this should be in jobs (and overlapping with the point above of showing the result).
+4. add the ID columns to datasets and models.
+6. completely remove the mock jobs. make sure that this time, displayed jobs are real entities in the database.
+5. when creating a new job, pop a window (like what is done when clicking Randomize Dataset or Create New Model) to select the dataset, the model (make sure to include the id here) to train. there will be 2 buttons, one for pending the training for later, one for training now.
+6. the jobs' actions are start and cancel only. i know that pausing training in sklearn is somewhat unreasonable to implement.
+```
+```
+1. you forgot the ID column of datasets page
+remember that we want separation of concern, so
+2. remove the Dataset and Status columns in models page
+3. remove target column selection and feature columns field when create new model.
+3. remove the Dataset Information section in model details window
+4. in the Create new training job window, let the user select the training specific information here, for example the target column. show the other feature columns only, they are not a thing to select.
+5. somehow the training currently doesn't work, you may try to make it work now, but the other 4 points above are more important.
+```
+```
+the UI is nearly correct now, but the backend or the api calling is not. in model selection, i'm forced to choose a dataset with the message "Dataset is automatically selected from the model". this shouldn't be how this works. modify both the backend and the frontend to reflect the following changes:
+1. the user should be able to choose any of their dataset for the job. this means that "Dataset is automatically selected from the model" is obsolete and wrong.
+2. somehow i still fail to create a training job. check if anything is wrong.
+```
+```
+i failed to create job. see the error in @error create job terminal.
+```
+```
+@job error fix this
+```
+```
+it works, nice. how does the progress bar even work? do you see that it's reasonable to keep it?
+```
+## API keys
+```
+you have done the hard things. this should be easier.
+1. make the api keys page work by modifying the frontend and the backend.
+2. the key should be in the same format, don't split them into pk_live or pk_test or something.
+3. use actual data from the database. delete all things related to mock api keys.
+4. add the column to know the number of times used of the api key. we will implement actual tracking later, just too complicated to put in the project now.
+5. write the expire date normally, don't wrap it in the red box like that.
+```
+## Documentation and Dashboard
+```
+remove this warning "For security reasons, this key will never be displayed again. Please copy it now.", it's not correct
+on the main page, make the Documentation button clickable. navigate to a one page documentation for the api call. write it short but comprehensive. do not explain things long. assume that the user already understand machine learning and sklearn. this is just an api reference.
+```
+```
+- the dashboard is not showing the correct data: Jobs
+12
+Datasets
+24
+Models
+8
+API Calls
+872
+- remove the Recent Jobs section on the dashboard
+
+- make the documentation page more streamlined with other pages. of course, make the packageml button on this page navigate to the main page.
 ```

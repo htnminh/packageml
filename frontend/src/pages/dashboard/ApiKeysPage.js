@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -16,7 +16,9 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Chip
+  CircularProgress,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -25,20 +27,53 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { format } from 'date-fns';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-// Mock data for demonstration
-const mockApiKeys = [
-  { id: 1, name: 'Production API Key', key: 'pk_live_1234567890abcdef', created: '2023-05-15', expires: '2024-05-15', lastUsed: '2023-06-10' },
-  { id: 2, name: 'Testing API Key', key: 'pk_test_abcdef1234567890', created: '2023-06-01', expires: '2023-12-01', lastUsed: '2023-06-08' }
-];
+// Backend API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const ApiKeysPage = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [keyName, setKeyName] = useState('');
   const [expiryDate, setExpiryDate] = useState(null);
   const [showNewKey, setShowNewKey] = useState(false);
   const [newKey, setNewKey] = useState('');
-  const [apiKeys, setApiKeys] = useState(mockApiKeys);
+  const [apiKeys, setApiKeys] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [notification, setNotification] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Fetch API keys when the component mounts
+  useEffect(() => {
+    fetchApiKeys();
+  }, []);
+
+  const fetchApiKeys = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/api-keys/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      setApiKeys(response.data);
+    } catch (error) {
+      console.error('Error fetching API keys:', error);
+      setError('Failed to load API keys');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -51,33 +86,83 @@ const ApiKeysPage = () => {
     setOpen(false);
   };
 
-  const handleGenerateKey = () => {
-    // In a real application, this would make an API call
-    const generatedKey = 'pk_' + Math.random().toString(36).substring(2, 15);
-    setNewKey(generatedKey);
-    setShowNewKey(true);
-    
-    // Add the new key to the list
-    const newKeyObject = {
-      id: apiKeys.length + 1,
-      name: keyName,
-      key: generatedKey,
-      created: format(new Date(), 'yyyy-MM-dd'),
-      expires: expiryDate ? format(expiryDate, 'yyyy-MM-dd') : 'Never',
-      lastUsed: '-'
-    };
-    
-    setApiKeys([...apiKeys, newKeyObject]);
+  const handleGenerateKey = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const data = {
+        name: keyName,
+        expires_at: expiryDate ? expiryDate.toISOString() : null
+      };
+
+      const response = await axios.post(`${API_URL}/api-keys/`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Set the new key to show in the dialog
+      setNewKey(response.data.key);
+      setShowNewKey(true);
+      
+      // Update the list of API keys
+      fetchApiKeys();
+    } catch (error) {
+      console.error('Error generating API key:', error);
+      setError('Failed to generate API key');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCopyKey = (key) => {
     navigator.clipboard.writeText(key);
-    // In a real app, you would show a notification/toast here
+    setNotification('API key copied to clipboard');
+    setOpenSnackbar(true);
   };
 
-  const handleRevokeKey = (id) => {
-    // In a real application, this would make an API call
-    setApiKeys(apiKeys.filter(key => key.id !== id));
+  const handleRevokeKey = async (id) => {
+    if (!window.confirm('Are you sure you want to revoke this API key? This action cannot be undone.')) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      await axios.delete(`${API_URL}/api-keys/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Update the list of API keys
+      fetchApiKeys();
+      setNotification('API key revoked successfully');
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error('Error revoking API key:', error);
+      setError('Failed to revoke API key');
+      setOpenSnackbar(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Never';
+    return format(new Date(dateString), 'yyyy-MM-dd');
   };
 
   return (
@@ -92,7 +177,12 @@ const ApiKeysPage = () => {
       </Box>
       
       <Paper sx={{ p: 3, borderRadius: 3 }}>
-        {apiKeys.length === 0 ? (
+        {loading && apiKeys.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+            <CircularProgress size={40} sx={{ mr: 2 }} />
+            <Typography>Loading API keys...</Typography>
+          </Box>
+        ) : apiKeys.length === 0 ? (
           <Typography variant="body1" color="text.secondary" textAlign="center" py={6}>
             You haven't created any API keys yet. API keys allow you to access PackageML programmatically.
           </Typography>
@@ -101,10 +191,12 @@ const ApiKeysPage = () => {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell><Typography fontWeight="bold">ID</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Name</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Key</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Created</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Expires</Typography></TableCell>
+                  <TableCell><Typography fontWeight="bold">Usage Count</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Last Used</Typography></TableCell>
                   <TableCell><Typography fontWeight="bold">Actions</Typography></TableCell>
                 </TableRow>
@@ -112,6 +204,7 @@ const ApiKeysPage = () => {
               <TableBody>
                 {apiKeys.map((apiKey) => (
                   <TableRow key={apiKey.id}>
+                    <TableCell>{apiKey.id}</TableCell>
                     <TableCell>{apiKey.name}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -123,19 +216,12 @@ const ApiKeysPage = () => {
                         </IconButton>
                       </Box>
                     </TableCell>
-                    <TableCell>{apiKey.created}</TableCell>
+                    <TableCell>{formatDate(apiKey.created_at)}</TableCell>
                     <TableCell>
-                      {apiKey.expires === 'Never' ? (
-                        'Never'
-                      ) : (
-                        <Chip 
-                          label={apiKey.expires} 
-                          color={new Date(apiKey.expires) < new Date() ? 'error' : 'default'} 
-                          size="small" 
-                        />
-                      )}
+                      {formatDate(apiKey.expires_at)}
                     </TableCell>
-                    <TableCell>{apiKey.lastUsed}</TableCell>
+                    <TableCell>{apiKey.usage_count}</TableCell>
+                    <TableCell>{apiKey.last_used_at ? formatDate(apiKey.last_used_at) : 'Never'}</TableCell>
                     <TableCell>
                       <IconButton color="error" onClick={() => handleRevokeKey(apiKey.id)}>
                         <DeleteIcon />
@@ -153,6 +239,12 @@ const ApiKeysPage = () => {
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Generate New API Key</DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          
           {!showNewKey ? (
             <Box sx={{ pt: 1 }}>
               <TextField
@@ -198,9 +290,6 @@ const ApiKeysPage = () => {
                   <ContentCopyIcon fontSize="small" />
                 </IconButton>
               </Box>
-              <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-                For security reasons, this key will never be displayed again. Please copy it now.
-              </Typography>
             </Box>
           )}
         </DialogContent>
@@ -212,9 +301,9 @@ const ApiKeysPage = () => {
                 onClick={handleGenerateKey} 
                 variant="contained" 
                 color="primary"
-                disabled={!keyName}
+                disabled={!keyName || loading}
               >
-                Generate Key
+                {loading ? 'Generating...' : 'Generate Key'}
               </Button>
             </>
           ) : (
@@ -224,6 +313,15 @@ const ApiKeysPage = () => {
           )}
         </DialogActions>
       </Dialog>
+
+      {/* Notification Snackbar */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={5000}
+        onClose={() => setOpenSnackbar(false)}
+        message={notification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      />
     </>
   );
 };
