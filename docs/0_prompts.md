@@ -1062,3 +1062,102 @@ however to ensure performance, only load that the first time when the user log i
 ```
 why can i create an account normally even after deleting the database, but can't when i deploy on another machine? can you see where's the problem?
 ```
+```
+frontend-1  | /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+frontend-1  | /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+frontend-1  | 10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+frontend-1  | 10-listen-on-ipv6-by-default.sh: info: /etc/nginx/conf.d/default.conf differs from the packaged version
+frontend-1  | /docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+frontend-1  | /docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+frontend-1  | /docker-entrypoint.sh: Configuration complete; ready for start up
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: using the "epoll" event method
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: nginx/1.27.5
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: OS: Linux 6.8.0-58-generic
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: start worker processes
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: start worker process 29
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: start worker process 30
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: start worker process 31
+frontend-1  | 2025/05/10 17:04:30 [notice] 1#1: start worker process 32
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:38 +0000] "GET /favicon.ico HTTP/1.0" 304 0 "https://packageml.htnminh.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:38 +0000] "GET / HTTP/1.0" 304 0 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:38 +0000] "GET /static/css/main.90f4561d.css HTTP/1.0" 304 0 "https://packageml.htnminh.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:38 +0000] "GET /static/js/main.23ab569d.js HTTP/1.0" 304 0 "https://packageml.htnminh.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:39 +0000] "GET /manifest.json HTTP/1.0" 304 0 "https://packageml.htnminh.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+frontend-1  | 172.18.0.1 - - [10/May/2025:17:04:40 +0000] "GET /logo192.png HTTP/1.0" 304 0 "https://packageml.htnminh.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" "-"
+backend-1   | Running database migrations...
+mysql-1     | 2025-05-10 17:04:30+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.42-1.el9 started.
+mysql-1     | 2025-05-10 17:04:30+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysql-1     | 2025-05-10 17:04:30+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.42-1.el9 started.
+mysql-1     | 2025-05-10 17:04:30+00:00 [Note] [Entrypoint]: Initializing database files
+mysql-1     | 2025-05-10T17:04:30.570118Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+mysql-1     | 2025-05-10T17:04:30.570296Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.0.42) initializing of server in progress as process 80
+mysql-1     | 2025-05-10T17:04:30.578512Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysql-1     | 2025-05-10T17:04:31.118548Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysql-1     | 2025-05-10T17:04:32.825680Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+mysql-1     | 2025-05-10 17:04:36+00:00 [Note] [Entrypoint]: Database files initialized
+mysql-1     | 2025-05-10 17:04:36+00:00 [Note] [Entrypoint]: Starting temporary server
+mysql-1     | 2025-05-10T17:04:36.970350Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+mysql-1     | 2025-05-10T17:04:36.973352Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.42) starting as process 124
+mysql-1     | 2025-05-10T17:04:37.004723Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysql-1     | 2025-05-10T17:04:37.262269Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysql-1     | 2025-05-10T17:04:37.547953Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+mysql-1     | 2025-05-10T17:04:37.548019Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysql-1     | 2025-05-10T17:04:37.552578Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysql-1     | 2025-05-10T17:04:37.584054Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Socket: /var/run/mysqld/mysqlx.sock
+mysql-1     | 2025-05-10T17:04:37.584407Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.42'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server - GPL.
+mysql-1     | 2025-05-10 17:04:37+00:00 [Note] [Entrypoint]: Temporary server started.
+mysql-1     | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+backend-1   | Initializing database...
+backend-1   | Checking if database initialization is needed...
+backend-1   | Database not ready, retrying in 5 seconds... (1/10)
+backend-1   | Database not ready, retrying in 5 seconds... (2/10)
+backend-1   | Successfully connected to database
+backend-1   | Creating database tables if they don't exist...
+backend-1   | Creating admin user...
+backend-1   | Admin user created successfully
+backend-1   | Database initialization completed.
+backend-1   | Running migrations for existing tables...
+backend-1   | target_column already exists.
+backend-1   | feature_columns already exists.
+backend-1   | Migration completed successfully!
+backend-1   | All migrations completed successfully.
+backend-1   | INFO:     Will watch for changes in these directories: ['/app']
+backend-1   | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1   | INFO:     Started reloader process [8] using StatReload
+backend-1   | INFO:     Started server process [10]
+backend-1   | INFO:     Waiting for application startup.
+backend-1   | INFO:     Application startup complete.
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/leapseconds' as time zone. Skipping it.
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/tzdata.zi' as time zone. Skipping it.
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+mysql-1     | Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+mysql-1     | 2025-05-10 17:04:40+00:00 [Note] [Entrypoint]: Creating database packageml
+mysql-1     | 2025-05-10 17:04:40+00:00 [Note] [Entrypoint]: Creating user packageml
+mysql-1     | 2025-05-10 17:04:40+00:00 [Note] [Entrypoint]: Giving user packageml access to schema packageml
+mysql-1     | 
+mysql-1     | 2025-05-10 17:04:40+00:00 [Note] [Entrypoint]: Stopping temporary server
+mysql-1     | 2025-05-10T17:04:40.365042Z 13 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.0.42).
+mysql-1     | 2025-05-10T17:04:41.248670Z 0 [System] [MY-010910] [Server] /usr/sbin/mysqld: Shutdown complete (mysqld 8.0.42)  MySQL Community Server - GPL.
+mysql-1     | 2025-05-10 17:04:41+00:00 [Note] [Entrypoint]: Temporary server stopped
+mysql-1     | 
+mysql-1     | 2025-05-10 17:04:41+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+mysql-1     | 
+mysql-1     | 2025-05-10T17:04:41.706534Z 0 [Warning] [MY-011068] [Server] The syntax '--skip-host-cache' is deprecated and will be removed in a future release. Please use SET GLOBAL host_cache_size=0 instead.
+mysql-1     | 2025-05-10T17:04:41.709159Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.42) starting as process 1
+mysql-1     | 2025-05-10T17:04:41.719339Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysql-1     | 2025-05-10T17:04:41.894324Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysql-1     | 2025-05-10T17:04:42.115132Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+mysql-1     | 2025-05-10T17:04:42.115192Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysql-1     | 2025-05-10T17:04:42.119286Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysql-1     | 2025-05-10T17:04:42.149594Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+mysql-1     | 2025-05-10T17:04:42.149747Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.42'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+
+i still fail when try to create an user there. see the log. i ran git pull, docker compose down -v, docker compose up -d --build
+it's on an ubuntu digitalocean droplet. the packageml.htnminh.com point to that ip address and the website shows up correctly. however i can't seem to register at all.
+```

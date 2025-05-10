@@ -51,7 +51,7 @@ app = FastAPI(title="PackageML API")
 # Add CORS middleware with specific origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost", "http://frontend"],  # Specific origins for better security
+    allow_origins=["http://localhost:3000", "http://localhost", "http://frontend", "https://packageml.htnminh.com"],  # Specific origins for better security
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
