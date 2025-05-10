@@ -212,3 +212,35 @@ To address all issues (including breaking changes), run:
 
 Run `npm audit` for details.
 ```
+
+
+```
+refer to @user_flow_designs @1_research.md @2_plan_design.md  to understand what we are building. scan the whole directory structure to know what i have done so far.
+write a docker compose file for me to put this frontend up. since we didn't build the backend, we will modify this one further later.
+```
+```
+```
+> Terminal context:
+```
+docker compose up --build
+time="2025-05-10T14:33:15+07:00" level=warning msg="C:\\Users\\nhatm\\OneDrive - Hanoi University of Science and Technology\\Documents\\GitHub\\packageml\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+unable to get image 'packageml-frontend': error during connect: Get "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.48/images/packageml-frontend/json": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+```
+```
+i have done that, and at the end it shows this and i ctrl C. should i now compose up -d ?
+```
+> Terminal context:
+```
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker processes                                                                    
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 29                                                                   
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 30
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 31                                                                   
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 32                                                                   
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 33                                                                   
+frontend-1  | 2025/05/10 07:42:23 [notice] 1#1: start worker process 34
+Gracefully stopping... (press Ctrl+C again to force)                                                                                      
+[+] Stopping 1/1
+ ✔ Container packageml-frontend-1  Stopped                                                                                           0.6s 
+exit status 130
+```
