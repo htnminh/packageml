@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Box, Typography, Grid, Card, CardContent, CardActionArea, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -7,6 +7,20 @@ import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+
+// Production flag - set to true when in production
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Debug logger function that only logs in development
+const debugLog = (message, data) => {
+  if (!isProduction && console) {
+    if (data) {
+      console.log(message, data);
+    } else {
+      console.log(message);
+    }
+  }
+};
 
 const IconWrapper = styled(Box)(({ theme, color }) => ({
   backgroundColor: color || theme.palette.primary.main,
@@ -31,7 +45,13 @@ const NewItemCard = styled(Card)(({ theme }) => ({
 }));
 
 const NewItemPage = () => {
+  debugLog("Rendering NewItemPage component");
+  
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    debugLog("NewItemPage component mounted");
+  }, []);
   
   const items = [
     { 
@@ -64,12 +84,22 @@ const NewItemPage = () => {
     }
   ];
 
+  const handleNavigate = useCallback((path) => {
+    debugLog("Navigating to:", path);
+    navigate(path);
+  }, [navigate]);
+
+  const handleBackNavigation = useCallback(() => {
+    debugLog("Navigating back to dashboard");
+    navigate('/dashboard');
+  }, [navigate]);
+
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
         <Button 
           startIcon={<ArrowBackIcon />} 
-          onClick={() => navigate('/dashboard')}
+          onClick={handleBackNavigation}
           sx={{ mr: 2 }}
         >
           Back
@@ -85,7 +115,7 @@ const NewItemPage = () => {
             <NewItemCard>
               <CardActionArea 
                 sx={{ height: '100%', p: 2 }}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigate(item.path)}
               >
                 <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                   <IconWrapper color={item.color}>

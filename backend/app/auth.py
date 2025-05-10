@@ -32,7 +32,7 @@ def verify_password(plain_password: str, hashed_password: str, salt: str):
     )
 
 def authenticate_user(db: Session, email: str, password: str):
-    """Authenticate a user by email and password"""
+    """Authenticate a user with email and password"""
     user = db.query(User).filter(User.email == email).first()
     if not user:
         return False

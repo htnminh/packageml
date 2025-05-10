@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Box, 
   Typography, 
@@ -22,7 +22,16 @@ import {
   CardContent,
   Divider,
   Tab,
-  Tabs
+  Tabs,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Slider,
+  Alert,
+  Stack,
+  CircularProgress
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -31,9 +40,29 @@ import EditIcon from '@mui/icons-material/Edit';
 import DownloadIcon from '@mui/icons-material/Download';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-// Mock data for datasets
+// Backend API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+// Production flag - set to true when in production
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Debug logger function that only logs in development
+const debugLog = (message, data) => {
+  if (!isProduction && console) {
+    if (data) {
+      console.log(message, data);
+    } else {
+      console.log(message);
+    }
+  }
+};
+
+// Mock data for datasets - will be replaced with real data from API
 const mockDatasets = [
   { 
     id: 1, 
@@ -73,7 +102,7 @@ const mockDatasets = [
   }
 ];
 
-// Mock dataset details
+// Mock dataset details - will be replaced with real data from API
 const mockDatasetDetails = {
   id: 1,
   name: 'Customer Data',
@@ -98,42 +127,274 @@ const mockDatasetDetails = {
 };
 
 const DatasetsPage = () => {
+  debugLog("Rendering DatasetsPage component");
+  
   const navigate = useNavigate();
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [randomizeOpen, setRandomizeOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [tabValue, setTabValue] = useState(0);
+  const [datasets, setDatasets] = useState(mockDatasets);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // State for randomize dialog
+  const [datasetType, setDatasetType] = useState('Customer Data');
+  const [numRows, setNumRows] = useState(100);
+  const [randomizeLoading, setRandomizeLoading] = useState(false);
+  const [randomizeError, setRandomizeError] = useState(null);
 
-  const handleViewDetails = (datasetId) => {
-    // In a real application, this would fetch the dataset details
-    setSelectedDataset(mockDatasetDetails);
+  // Memoize formatSize function to avoid recreating it on every render
+  const formatSize = useCallback((bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  }, []);
+
+  // Fetch datasets on component mount
+  useEffect(() => {
+    debugLog("DatasetsPage useEffect triggered");
+    fetchDatasets();
+  }, []);
+
+  const fetchDatasets = async () => {
+    debugLog("Fetching datasets...");
+    setLoading(true);
+    setError(null);
+    try {
+      // Get token from local storage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/datasets/`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      debugLog("API response:", response.data);
+      
+      // Transform API response to match UI format
+      const formattedDatasets = response.data.map(dataset => ({
+        id: dataset.id,
+        name: dataset.name,
+        filename: dataset.filename,
+        rows: dataset.rows,
+        columns: dataset.columns,
+        size: formatSize(dataset.size),
+        uploaded: new Date(dataset.created_at).toISOString().split('T')[0],
+        type: dataset.file_type,
+        missing_values: dataset.missing_values,
+        used_in_jobs: dataset.used_in_jobs
+      }));
+      
+      setDatasets(formattedDatasets.length > 0 ? formattedDatasets : mockDatasets);
+    } catch (err) {
+      console.error('Error fetching datasets:', err);
+      setError('Failed to load datasets. Please try again later.');
+      // Fallback to mock data for demo purposes
+      setDatasets(mockDatasets);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewDetails = useCallback(async (datasetId) => {
+    debugLog("Viewing details for dataset ID:", datasetId);
+    try {
+      // Get token from local storage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/datasets/${datasetId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Format the response to match UI expectations
+      const datasetDetails = {
+        id: response.data.id,
+        name: response.data.name,
+        filename: response.data.filename,
+        description: response.data.description || 'No description provided',
+        created: new Date(response.data.created_at).toISOString().split('T')[0],
+        tags: response.data.tags ? response.data.tags.split(',') : [],
+        columns: response.data.column_schema,
+        sample_data: response.data.sample_data
+      };
+      
+      setSelectedDataset(datasetDetails);
+    } catch (err) {
+      console.error('Error fetching dataset details:', err);
+      // Fallback to mock data for demo purposes
+      setSelectedDataset(mockDatasetDetails);
+    }
+    
     setDetailsOpen(true);
+  }, [navigate]);
+
+  const handleDeleteDataset = useCallback(async (datasetId) => {
+    if (!window.confirm('Are you sure you want to delete this dataset?')) {
+      return;
+    }
+    
+    try {
+      // Get token from local storage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      await axios.delete(`${API_URL}/datasets/${datasetId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Remove from local state
+      setDatasets(prevDatasets => prevDatasets.filter(dataset => dataset.id !== datasetId));
+    } catch (err) {
+      console.error('Error deleting dataset:', err);
+      alert('Failed to delete dataset. Please try again.');
+    }
+  }, [navigate]);
+
+  const handleOpenRandomizeDialog = useCallback(() => {
+    debugLog("Opening randomize dialog");
+    setRandomizeOpen(true);
+  }, []);
+
+  const handleRandomizeDataset = async () => {
+    debugLog("Randomizing dataset:", { datasetType, numRows });
+    setRandomizeLoading(true);
+    setRandomizeError(null);
+    
+    try {
+      // Get token from local storage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await axios.post(
+        `${API_URL}/datasets/randomize/`,
+        {
+          dataset_type: datasetType,
+          num_rows: numRows
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      debugLog("Randomize response:", response.data);
+      
+      // Add the new dataset to the list
+      const newDataset = {
+        id: response.data.id,
+        name: response.data.name,
+        filename: response.data.filename,
+        rows: response.data.rows,
+        columns: response.data.columns,
+        size: formatSize(response.data.size),
+        uploaded: new Date(response.data.created_at).toISOString().split('T')[0],
+        type: response.data.file_type,
+        missing_values: response.data.missing_values,
+        used_in_jobs: response.data.used_in_jobs
+      };
+      
+      setDatasets(prevDatasets => [...prevDatasets, newDataset]);
+      setRandomizeOpen(false);
+      
+      // Show success message
+      alert(`Successfully created random ${datasetType} with ${numRows} rows`);
+    } catch (err) {
+      console.error('Error creating random dataset:', err);
+      setRandomizeError(err.response?.data?.detail || 'Failed to create random dataset. Please try again.');
+    } finally {
+      setRandomizeLoading(false);
+    }
   };
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = useCallback((event, newValue) => {
     setTabValue(newValue);
-  };
+  }, []);
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-          Datasets
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="secondary" 
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/dashboard/new')}
-        >
-          Upload New Dataset
-        </Button>
-      </Box>
-      
-      <Paper sx={{ p: 3, borderRadius: 3 }}>
-        {mockDatasets.length === 0 ? (
-          <Typography variant="body1" color="text.secondary" textAlign="center" py={6}>
-            No datasets found. Upload a dataset to get started.
+      {/* Main interface header with buttons */}
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 2, bgcolor: '#f8f9fa' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" component="h1" fontWeight="bold">
+            Datasets
           </Typography>
+          <Box>
+            {/* RANDOMIZE DATASET BUTTON - PROMINENT */}
+            <Button 
+              variant="contained"
+              color="primary" 
+              size="large"
+              startIcon={<ShuffleIcon />}
+              onClick={handleOpenRandomizeDialog}
+              sx={{ mr: 2, bgcolor: '#1976d2', px: 3 }}
+            >
+              Randomize Dataset
+            </Button>
+            <Button 
+              variant="contained" 
+              color="secondary" 
+              size="large"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/dashboard/datasets/new')}
+              sx={{ px: 3 }}
+            >
+              Upload Dataset
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+      
+      {/* Error message if any */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+      
+      {/* Datasets table */}
+      <Paper sx={{ p: 3, borderRadius: 2 }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+            <CircularProgress size={40} sx={{ mr: 2 }} />
+            <Typography>Loading datasets...</Typography>
+          </Box>
+        ) : datasets.length === 0 ? (
+          <Box sx={{ py: 6, textAlign: 'center' }}>
+            <Typography variant="body1" color="text.secondary" gutterBottom>
+              No datasets found.
+            </Typography>
+            <Button 
+              variant="contained" 
+              color="primary"
+              startIcon={<ShuffleIcon />}
+              onClick={handleOpenRandomizeDialog}
+              sx={{ mt: 2 }}
+            >
+              Randomize Your First Dataset
+            </Button>
+          </Box>
         ) : (
           <TableContainer>
             <Table>
@@ -150,7 +411,7 @@ const DatasetsPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {mockDatasets.map((dataset) => (
+                {datasets.map((dataset) => (
                   <TableRow key={dataset.id}>
                     <TableCell>{dataset.name}</TableCell>
                     <TableCell>{dataset.filename}</TableCell>
@@ -174,13 +435,11 @@ const DatasetsPage = () => {
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
-                        <IconButton color="secondary" size="small">
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton color="default" size="small">
-                          <DownloadIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton color="error" size="small">
+                        <IconButton 
+                          color="error" 
+                          size="small"
+                          onClick={() => handleDeleteDataset(dataset.id)}
+                        >
                           <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
@@ -213,7 +472,7 @@ const DatasetsPage = () => {
                 />
                 <Chip 
                   icon={<AssessmentIcon />} 
-                  label={`${mockDatasetDetails.sample_data.length} rows shown`} 
+                  label={`${selectedDataset.sample_data.length} rows shown`} 
                   size="small" 
                 />
               </Box>
@@ -247,11 +506,11 @@ const DatasetsPage = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {mockDatasetDetails.sample_data.map((row, index) => (
+                      {selectedDataset.sample_data.map((row, index) => (
                         <TableRow key={index}>
                           {selectedDataset.columns.map((column) => (
-                            <TableCell key={column.name}>
-                              {row[column.name]}
+                            <TableCell key={`${index}-${column.name}`}>
+                              {row[column.name]?.toString() || ''}
                             </TableCell>
                           ))}
                         </TableRow>
@@ -263,114 +522,150 @@ const DatasetsPage = () => {
             )}
 
             {tabValue === 1 && (
-              <Box>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <Typography variant="h6" gutterBottom>Column Statistics</Typography>
-                    <TableContainer>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Column</TableCell>
-                            <TableCell>Type</TableCell>
-                            <TableCell>Missing Values</TableCell>
-                            <TableCell>Example</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {selectedDataset.columns.map((column) => (
-                            <TableRow key={column.name}>
-                              <TableCell>{column.name}</TableCell>
-                              <TableCell>
-                                <Chip size="small" label={column.type} />
-                              </TableCell>
-                              <TableCell>
-                                {column.missing === 0 ? (
-                                  <Chip size="small" label="None" color="success" />
-                                ) : (
-                                  <Chip size="small" label={column.missing} color="warning" />
-                                )}
-                              </TableCell>
-                              <TableCell>{column.example}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Grid>
-                </Grid>
-              </Box>
-            )}
-
-            {tabValue === 2 && (
-              <Box>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <Card variant="outlined">
+              <Grid container spacing={3}>
+                {selectedDataset.columns.map((column) => (
+                  <Grid item xs={12} md={6} lg={4} key={column.name}>
+                    <Card>
                       <CardContent>
-                        <Typography variant="h6" gutterBottom>Dataset Information</Typography>
-                        <Divider sx={{ mb: 2 }} />
-                        <Typography variant="body2">
-                          <strong>Filename:</strong> {selectedDataset.filename}
+                        <Typography variant="h6" fontWeight="bold">
+                          {column.name}
                         </Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          <strong>Upload Date:</strong> {selectedDataset.created}
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          {column.type}
                         </Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          <strong>Description:</strong> {selectedDataset.description}
-                        </Typography>
+                        <Divider sx={{ my: 1 }} />
                         <Box sx={{ mt: 2 }}>
-                          <Typography variant="body2" sx={{ mb: 1 }}>
-                            <strong>Tags:</strong>
+                          <Typography variant="body2">
+                            Missing: {column.missing} values
                           </Typography>
-                          <Box>
-                            {selectedDataset.tags.map((tag) => (
-                              <Chip key={tag} label={tag} size="small" sx={{ mr: 1 }} />
-                            ))}
-                          </Box>
+                          <Typography variant="body2">
+                            Example: {column.example}
+                          </Typography>
                         </Box>
                       </CardContent>
                     </Card>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>Usage Information</Typography>
-                        <Divider sx={{ mb: 2 }} />
-                        <Typography variant="body2">
-                          <strong>Used in Jobs:</strong> {mockDatasets[0].used_in_jobs}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-                          <strong>Last Used:</strong> 2023-06-01
-                        </Typography>
-                        <Button 
-                          variant="outlined" 
-                          color="primary"
-                          size="small"
-                          startIcon={<AddIcon />}
-                        >
-                          Create Job Using This Dataset
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
+                ))}
+              </Grid>
+            )}
+
+            {tabValue === 2 && (
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        Basic Information
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Filename:</strong> {selectedDataset.filename}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Created:</strong> {selectedDataset.created}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Description:</strong> {selectedDataset.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 </Grid>
-              </Box>
+                <Grid item xs={12} md={6}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6" fontWeight="bold" gutterBottom>
+                        Tags
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {selectedDataset.tags.map((tag, index) => (
+                          <Chip key={index} label={tag} size="small" />
+                        ))}
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
             )}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setDetailsOpen(false)}>Close</Button>
-            <Button startIcon={<DownloadIcon />} variant="outlined">Export Dataset</Button>
-            <Button 
-              variant="contained" 
-              color="primary"
-              startIcon={<AddIcon />}
-            >
-              Use in New Job
-            </Button>
           </DialogActions>
         </Dialog>
       )}
+
+      {/* Randomize Dataset Dialog */}
+      <Dialog 
+        open={randomizeOpen} 
+        onClose={() => !randomizeLoading && setRandomizeOpen(false)} 
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h6">Randomize New Dataset</Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          {randomizeError && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {randomizeError}
+            </Alert>
+          )}
+          
+          <Stack spacing={3}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Dataset Type</FormLabel>
+              <RadioGroup
+                value={datasetType}
+                onChange={(e) => setDatasetType(e.target.value)}
+              >
+                <FormControlLabel value="Customer Data" control={<Radio />} label="Customer Data" />
+                <FormControlLabel value="Sales Data" control={<Radio />} label="Sales Data" />
+                <FormControlLabel value="Product Catalog" control={<Radio />} label="Product Catalog" />
+              </RadioGroup>
+            </FormControl>
+            
+            <Box>
+              <Typography gutterBottom>
+                Number of Rows: {numRows}
+              </Typography>
+              <Slider
+                value={numRows}
+                onChange={(e, newValue) => setNumRows(newValue)}
+                min={1}
+                max={2000}
+                step={10}
+                marks={[
+                  { value: 1, label: '1' },
+                  { value: 500, label: '500' },
+                  { value: 1000, label: '1000' },
+                  { value: 2000, label: '2000' }
+                ]}
+                valueLabelDisplay="auto"
+              />
+            </Box>
+            
+            <Alert severity="info">
+              Due to platform scaling limitations, datasets are limited to 20 columns and 5000 rows.
+            </Alert>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => !randomizeLoading && setRandomizeOpen(false)}
+            disabled={randomizeLoading}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={handleRandomizeDataset}
+            disabled={randomizeLoading}
+            startIcon={randomizeLoading ? <CircularProgress size={24} /> : <ShuffleIcon />}
+            sx={{ px: 3 }}
+          >
+            {randomizeLoading ? 'Generating...' : 'Randomize Dataset'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

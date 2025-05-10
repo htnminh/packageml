@@ -27,12 +27,11 @@ import { useAuth } from '../context/AuthContext';
 
 // Import dashboard page components
 import DatasetsPage from './dashboard/DatasetsPage';
+import NewDatasetPage from './dashboard/NewDatasetPage';
 import ModelsPage from './dashboard/ModelsPage';
-import ApiKeysPage from './dashboard/ApiKeysPage';
 import JobsPage from './dashboard/JobsPage';
+import ApiKeysPage from './dashboard/ApiKeysPage';
 import NewItemPage from './dashboard/NewItemPage';
-
-// Home page component
 import DashboardHome from './dashboard/DashboardHome';
 
 const drawerWidth = 240;
@@ -179,6 +178,7 @@ const Dashboard = () => {
           <Routes>
             <Route path="/" element={<DashboardHome />} />
             <Route path="/datasets" element={<DatasetsPage />} />
+            <Route path="/datasets/new" element={<NewDatasetPage />} />
             <Route path="/models" element={<ModelsPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/api" element={<ApiKeysPage />} />
