@@ -3,7 +3,8 @@
   - [Plan](#plan)
   - [UI design](#ui-design)
   - [User flow design](#user-flow-design)
-- [Frontend development and build process](#frontend-development-and-build-process)
+- [Basic frontend development and build process](#basic-frontend-development-and-build-process)
+- [Frontend and backend development, basic packaging process](#frontend-and-backend-development-basic-packaging-process)
 
 # Research process
 
@@ -186,7 +187,7 @@ in @5_api-mcp-integration-flow.md
 - we won't have "Set Permissions/Scope" yet. change it to set expiry date.
 ```
 
-# Frontend development and build process
+# Basic frontend development and build process
 ```
 looking good. refer to this @user_flow_designs , we will now have a review: look at the following files or directories to see if anything is deviated from the designs (including violations, misconceptions, mentioned but not supporting the flows, etc.) in other words, clean up or make modifications to make sure that we are on the right track.
 - @1_research.md 
@@ -212,8 +213,7 @@ To address all issues (including breaking changes), run:
 
 Run `npm audit` for details.
 ```
-
-
+# Frontend and backend development, basic packaging process
 ```
 refer to @user_flow_designs @1_research.md @2_plan_design.md  to understand what we are building. scan the whole directory structure to know what i have done so far.
 write a docker compose file for me to put this frontend up. since we didn't build the backend, we will modify this one further later.
