@@ -59,6 +59,3 @@ This will create a `build` folder with the production-ready optimized build.
 - Placeholder pages for Jobs, Datasets, Models, and API Keys
 - Modern, responsive UI with Material UI components
 
-## License
-
-This project is licensed under the GNU GPL v3 - see the LICENSE file for details. 
