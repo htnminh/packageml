@@ -1059,3 +1059,6 @@ API Calls
 
 however to ensure performance, only load that the first time when the user log in, and add a refresh button to query again every time the user press it.
 ```
+```
+why can i create an account normally even after deleting the database, but can't when i deploy on another machine? can you see where's the problem?
+```
