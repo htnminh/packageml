@@ -127,7 +127,7 @@ const LandingPage = () => {
               <Button color="inherit" startIcon={<MenuBookIcon />}>Documentation</Button>
               <Button 
                 component={Link} 
-                to="/dashboard" 
+                to="/login" 
                 variant="contained" 
                 color="primary" 
                 startIcon={<LoginIcon />}
@@ -165,7 +165,7 @@ const LandingPage = () => {
                 </Button>
                 <Button 
                   component={Link}
-                  to="/dashboard"
+                  to="/login"
                   variant="outlined" 
                   size="large" 
                   sx={{ bgcolor: 'rgba(255, 255, 255, 0.1)', color: 'white', borderColor: 'white' }}
@@ -391,7 +391,7 @@ const LandingPage = () => {
               size="large" 
               endIcon={<ArrowForwardIcon />}
               component={Link}
-              to="/dashboard"
+              to="/login"
             >
               Start Your First Project
             </Button>
@@ -561,7 +561,7 @@ const LandingPage = () => {
                 </Button>
                 <Button 
                   component={Link}
-                  to="/dashboard"
+                  to="/login"
                   variant="outlined" 
                   size="large" 
                   sx={{ color: 'white', borderColor: 'white' }}
@@ -596,7 +596,7 @@ const LandingPage = () => {
               </Typography>
               <Box component="ul" sx={{ pl: 2 }}>
                 <Box component="li" sx={{ mb: 1 }}>
-                  <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>
                     Dashboard
                   </Link>
                 </Box>

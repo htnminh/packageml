@@ -7,13 +7,52 @@ services:
       - "3000:80"
     environment:
       - NODE_ENV=production
-      - REACT_APP_API_URL=http://localhost:8000  # This will be updated when backend is ready
+      - REACT_APP_API_URL=http://localhost:8000
     volumes:
       - ./frontend:/app
       - /app/node_modules
     networks:
       - packageml-network
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=packageml
+      - DB_PASSWORD=packageml
+      - DB_NAME=packageml
+      - JWT_SECRET=mysecretkey
+    volumes:
+      - ./backend:/app
+    networks:
+      - packageml-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=packageml
+      - MYSQL_USER=packageml
+      - MYSQL_PASSWORD=packageml
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - packageml-network
 
 networks:
   packageml-network:
-    driver: bridge 
+    driver: bridge
+
+volumes:
+  mysql-data: 
